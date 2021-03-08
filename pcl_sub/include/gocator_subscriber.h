@@ -10,10 +10,10 @@
 #include <pcl/filters/crop_box.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/console/time.h>   // TicToc
+#include <std_msgs/Empty.h>
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloudT;
-ros::Publisher pub;
 
 // The point clouds we will be using
 PointCloudT::Ptr cloud_in (new PointCloudT);  // Original point cloud
@@ -28,10 +28,6 @@ Eigen::Matrix4d transformation_matrix = Eigen::Matrix4d::Identity();
 void print4x4Matrix (const Eigen::Matrix4d & matrix);
 
 void keyboardEventOccurred (const pcl::visualization::KeyboardEvent& event,
-                       void* nothing)
-{
-  //if (event.getKeySym () == "space" && event.keyDown ())
-    //next_iteration = true;
-}
+                       void* nothing);
 
 #endif

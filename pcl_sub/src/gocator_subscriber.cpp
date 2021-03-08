@@ -121,6 +121,10 @@ int main (int argc, char** argv)
   // Initialize ROS
   ros::init (argc, argv, "pcl_subscriber");
   ros::NodeHandle nh;
+
+  // Create a ROS subscriber for the input point cloud
+  ros::Subscriber sub = nh.subscribe<sensor_msgs::PointCloud2> ("pcl_output", 1, cloud_cb);
+
   //Read PLYFile
   std::string path = ros::package::getPath("gocator_publisher");
   if (pcl::io::loadPLYFile(path + "/model/monkey.ply", *cloud_in) < 0)
@@ -128,12 +132,6 @@ int main (int argc, char** argv)
     PCL_ERROR ("Error loading cloud.\n");
     return (-1);
   }
-
-  // Create a ROS subscriber for the input point cloud
-  ros::Subscriber sub = nh.subscribe<sensor_msgs::PointCloud2> ("pcl_output", 1, cloud_cb);
-
-  // Create a ROS publisher for the output point cloud
-  pub = nh.advertise<sensor_msgs::PointCloud2> ("filtered_points", 1);
 
   // Spin
   ros::spin ();
@@ -148,3 +146,15 @@ void print4x4Matrix (const Eigen::Matrix4d & matrix)
   printf ("Translation vector :\n");
   printf ("t = < %6.3f, %6.3f, %6.3f >\n\n", matrix (0, 3), matrix (1, 3), matrix (2, 3));
 }
+
+void keyboardEventOccurred (const pcl::visualization::KeyboardEvent& event,
+                       void* nothing)
+{
+  ros::NodeHandle nh;
+  // Create a ROS publisher for the output point cloud
+  std_msgs::Empty myMsg;
+  ros::Publisher ohSnap = nh.advertise<std_msgs::Empty>("snapshot_request",1);
+  if (event.getKeySym () == "space" && event.keyDown ())
+    ohSnap.publish(myMsg);
+    //next_iteration = true;
+};
