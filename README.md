@@ -6,6 +6,8 @@ packages for large-scale metrology project.
 
 [-] publisher
 
-[ ] subsriber
+[-] subscriber
 
 [ ] data from gocator 3210
+
+[ ] pub tf

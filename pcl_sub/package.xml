@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>gocator_subsriber</name>
+  <name>gocator_subscriber</name>
   <version>0.0.1</version>
-  <description>The pcl_publisher package</description>
+  <description>The pcl_subscriber package</description>
 
   <maintainer email="loganshi@sjtu.edu.cn">loganshi</maintainer>
 

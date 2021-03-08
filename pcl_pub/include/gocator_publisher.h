@@ -9,8 +9,9 @@
 #include <pcl/registration/icp.h>
 #include <pcl/filters/crop_box.h>
 #include <pcl/visualization/pcl_visualizer.h>
-#include <pcl/console/time.h>   // TicToc
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloudT;
+void print4x4Matrix (const Eigen::Matrix4d & matrix);
+
 #endif

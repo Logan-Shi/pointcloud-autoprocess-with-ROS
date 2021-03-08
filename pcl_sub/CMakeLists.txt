@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(gocator_subsriber)
+project(gocator_subscriber)
 find_package(catkin REQUIRED COMPONENTS
   pcl_conversions
   pcl_ros
@@ -12,5 +12,5 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
 )
-add_executable(gocator_subsriber src/gocator_subsriber.cpp)
-target_link_libraries(gocator_subsriber ${catkin_LIBRARIES})
+add_executable(gocator_subscriber src/gocator_subscriber.cpp)
+target_link_libraries(gocator_subscriber ${catkin_LIBRARIES})
