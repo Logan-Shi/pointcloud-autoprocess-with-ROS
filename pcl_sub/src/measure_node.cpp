@@ -1,11 +1,12 @@
 #include "measure_node.h"
 
-// void keyboardEventOccurred (const pcl::visualization::KeyboardEvent& event,
-//                        void* nothing, measureNode& node)
-// {
-//   if (event.getKeySym () == "space" && event.keyDown ())
-//     node.is_send_request = true;
-// };
+void keyboardEventOccurred (const pcl::visualization::KeyboardEvent& event,
+                       void* request_void)
+{
+    bool request = *static_cast<bool *> (request_void);
+    if (event.getKeySym () == "space" && event.keyDown ())
+        request = true;
+};
 
 measureNode::measureNode():
 //nh_(ros::this_node::getName()),
@@ -126,12 +127,12 @@ void measureNode::initViewer()
     viewer.setSize (1280, 1024);  // Visualiser window size
     
     // Register keyboard callback :
-    //viewer.registerKeyboardCallback (&keyboardEventOccurred, (void*) NULL);
+    viewer.registerKeyboardCallback (&keyboardEventOccurred, (void*) &(this->is_send_request));
 }
 
 void measureNode::displayViewer()
 {
-    while (!viewer.wasStopped ())
+    while (!is_send_request)
     {
         viewer.spinOnce ();
         
@@ -146,7 +147,7 @@ void measureNode::displayViewer()
             std::cout << "\nICP transformation " << ++iterations << " : cloud_icp -> cloud_in" << std::endl;
             transformation_matrix *= icp.getFinalTransformation ().cast<double>();  // WARNING /!\ This is not accurate! For "educational" purpose only!
             print4x4Matrix (transformation_matrix);  // Print the transformation between original pose and current pose
-            ss.str ("");
+            ss.str("");
             ss << iterations;
             std::string iterations_cnt = "ICP iterations = " + ss.str ();
             viewer.updateText (iterations_cnt, 10, 60, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "iterations_cnt");

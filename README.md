@@ -13,3 +13,5 @@ packages for large-scale metrology project.
 [ ] send snap request with keyboard
 
 [ ] QT user interface
+
+[ ] publish transform
