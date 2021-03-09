@@ -10,7 +10,9 @@ packages for large-scale metrology project.
 
 [ ] data from gocator 3210
 
-[ ] send snap request with keyboard
+[ ] serial points measuring support
+
+[-] send snap request with keyboard
 
 [ ] QT user interface
 

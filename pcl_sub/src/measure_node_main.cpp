@@ -18,14 +18,20 @@ int main(int argc, char **argv)
 
   while(ros::ok())
   {
+    std::cout<<"system running\n";
     ros::spinOnce();
-    if (measure_node.is_send_request)
+    std::cout<<"system running 2\n";
+    if (*(measure_node.is_send_request))
     {
+      std::cout<<"system running 3\n";
       measure_node.sendRequest();
-      measure_node.is_send_request = false;
+      std::cout<<"system running 5\n";
     }
+    std::cout<<"system running 6\n";
     loop_rate.sleep();
+    std::cout<<"system running 7\n";
   }
+  std::cout<<"system running 8\n";
 
   //exit
   return 0;

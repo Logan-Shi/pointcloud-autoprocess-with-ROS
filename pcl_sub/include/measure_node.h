@@ -64,7 +64,7 @@ class measureNode
         // Defining a rotation matrix and translation vector
         Eigen::Matrix4d transformation_matrix = Eigen::Matrix4d::Identity();
 
-        bool is_send_request = false;
+        boost::shared_ptr<int> is_send_request;
 
 		void print4x4Matrix (const Eigen::Matrix4d & matrix);
 
