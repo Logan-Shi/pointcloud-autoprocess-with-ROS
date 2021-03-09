@@ -27,7 +27,7 @@ class measureNode
 
         //ros node handle
         ros::NodeHandle nh_;
-        double loop_rate_ = 1;
+        double loop_rate_ = 10;
         
         //Subscriber. pcl data
         ros::Subscriber sub;
@@ -74,7 +74,7 @@ class measureNode
 
 		void initViewer();
 
-		void displayViewer();
+		void updateViewer();
 
 		void sendRequest();
 
