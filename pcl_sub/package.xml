@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>gocator_subscriber</name>
+  <name>measure_node</name>
   <version>0.0.1</version>
   <description>The pcl_subscriber package</description>
 

@@ -1,5 +1,5 @@
 <launch>
-	<node pkg="gocator_subscriber" type="gocator_subscriber" name="gocator_subscriber" output="screen"/>
+	<node pkg="measure_node" type="measure_node" name="measure_node" output="screen"/>
 
     <node pkg="gocator_publisher" type="gocator_publisher" name="gocator_publisher" output="screen"/>
 
