@@ -10,4 +10,6 @@ packages for large-scale metrology project.
 
 [ ] data from gocator 3210
 
-[ ] pub tf
+[ ] send snap request with keyboard
+
+[ ] QT user interface

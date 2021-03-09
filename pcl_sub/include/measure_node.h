@@ -9,6 +9,7 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <std_msgs/Empty.h>
 
+#include <pcl/point_cloud.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/io/ply_io.h>
 #include <pcl/point_types.h>
@@ -26,7 +27,7 @@ class measureNode
 
         //ros node handle
         ros::NodeHandle nh_;
-        double loop_rate_ = 60;
+        double loop_rate_ = 1;
         
         //Subscriber. pcl data
         ros::Subscriber sub;
@@ -36,15 +37,6 @@ class measureNode
 
         // Cue to snap
         std_msgs::Empty myMsg;
-        
-        // The point clouds we will be using
-		PointCloudT::Ptr cloud_in;  // Original point cloud
-		PointCloudT::Ptr cloud_icp;  // Icped point cloud
-		PointCloudT::Ptr cloud_tr;  // original point cloud
-
-		pcl::IterativeClosestPoint<PointT, PointT> icp;
-		pcl::console::TicToc pcl_timer;
-		pcl::visualization::PCLVisualizer viewer;
 
 		// The color we will be using
     	float bckgr_gray_level = 0.0;  // Black
@@ -59,6 +51,15 @@ class measureNode
         
         //destructor
         ~measureNode();
+
+        // The point clouds we will be using
+		PointCloudT::Ptr cloud_in;  // Original point cloud
+		PointCloudT::Ptr cloud_icp;  // Icped point cloud
+		PointCloudT::Ptr cloud_tr;  // original point cloud
+
+		pcl::IterativeClosestPoint<PointT, PointT> icp;
+		pcl::console::TicToc pcl_timer;
+		pcl::visualization::PCLVisualizer viewer;
 
         // Defining a rotation matrix and translation vector
         Eigen::Matrix4d transformation_matrix = Eigen::Matrix4d::Identity();

@@ -16,12 +16,9 @@ int main(int argc, char **argv)
   //fill cloud_in with ply file
   measure_node.init("monkey");
 
-  measure_node.initViewer();
-
   while(ros::ok())
   {
     ros::spinOnce();
-    measure_node.displayViewer();
     if (measure_node.is_send_request)
     {
       measure_node.sendRequest();

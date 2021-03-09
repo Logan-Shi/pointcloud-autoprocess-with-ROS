@@ -7,13 +7,17 @@
 //     node.is_send_request = true;
 // };
 
-measureNode::measureNode()
+measureNode::measureNode():
+//nh_(ros::this_node::getName()),
+cloud_in(new PointCloudT),
+cloud_icp(new PointCloudT),
+cloud_tr(new PointCloudT)
 {
     // Create a ROS subscriber for the input point cloud
-    ros::Subscriber sub = nh_.subscribe<sensor_msgs::PointCloud2> ("pcl_output", 1, 
+    sub = nh_.subscribe<sensor_msgs::PointCloud2> ("pcl_output", 1, 
                                                         &measureNode::cloud_cb, this);
     // Publish snap request
-    ros::Publisher ohSnap = nh_.advertise<std_msgs::Empty>("snapshot_request",1);
+    ohSnap = nh_.advertise<std_msgs::Empty>("snapshot_request",1);
 }
 
 measureNode::~measureNode()
@@ -50,6 +54,8 @@ void measureNode::cloud_cb (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
     pcl_conversions::toPCL(*cloud_msg, pcl_pc2);
     pcl::fromPCLPointCloud2(pcl_pc2,*cloud_icp);
     *cloud_tr = *cloud_icp;  // We backup cloud_icp into cloud_tr for later use
+    std::cout<< "cloud_in size "<<cloud_in->size()<<"\n";
+    std::cout<< "cloud_icp size "<<cloud_icp->size()<<"\n";
     
     // The Iterative Closest Point algorithm
     pcl_timer.tic ();
@@ -71,6 +77,10 @@ void measureNode::cloud_cb (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
     {
         PCL_ERROR ("\nICP has not converged.\n");
     }
+
+    initViewer();
+    displayViewer();
+
 }
 
 void measureNode::initViewer()
