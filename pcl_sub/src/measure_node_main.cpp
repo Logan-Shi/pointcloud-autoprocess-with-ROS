@@ -20,14 +20,12 @@ int main(int argc, char **argv)
   {
     while(measure_node.cloud_icp->size() == 0)
     {
+      measure_node.sendRequest();
       ros::spinOnce();
     }
 
     measure_node.updateViewer();
-    if (*(measure_node.is_send_request))
-      {
-        measure_node.sendRequest();
-      }
+    measure_node.sendRequest();
     loop_rate.sleep();
   }
 

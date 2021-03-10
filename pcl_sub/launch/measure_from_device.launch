@@ -1,0 +1,7 @@
+<launch>
+	<node pkg="measure_node" type="measure_node" name="measure_node" output="screen"/>
+
+    <include file="$(find gocator_3100)/launch/gocator_3100.launch"/> 
+
+<!--     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find gocator_publisher)/param/rviz/default.rviz" /> -->
+</launch>

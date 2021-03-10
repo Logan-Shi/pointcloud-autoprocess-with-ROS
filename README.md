@@ -8,7 +8,13 @@ packages for large-scale metrology project.
 
 [-] subscriber
 
-[ ] data from gocator 3210
+[-] data from gocator 3210
+
+[ ] NAN data from gocator 3210
+
+[ ] gocator 3210 saver
+
+[ ] visualize saved ply
 
 [ ] serial points measuring support
 
@@ -17,3 +23,5 @@ packages for large-scale metrology project.
 [ ] QT user interface
 
 [ ] publish transform
+
+[ ] rosparam server

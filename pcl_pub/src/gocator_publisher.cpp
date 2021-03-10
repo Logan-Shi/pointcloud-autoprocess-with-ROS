@@ -18,7 +18,9 @@ int main (int argc, char **argv)
     PointCloudT::Ptr cloud (new PointCloudT);  // Original point cloud
     //Read PLYFile
     std::string path = ros::package::getPath("gocator_publisher");
-    if (pcl::io::loadPLYFile(path + "/model/monkey.ply", *cloud) < 0)
+    std::string filename;
+    nh.getParam("filename",filename);
+    if (pcl::io::loadPLYFile(path + "/model/test/" + filename, *cloud) < 0)
     {
       PCL_ERROR ("Error loading cloud.\n");
       return (-1);

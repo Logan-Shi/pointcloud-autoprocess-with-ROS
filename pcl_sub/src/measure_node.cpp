@@ -15,13 +15,13 @@ cloud_in(new PointCloudT),
 cloud_icp(new PointCloudT),
 cloud_tr(new PointCloudT)
 {
-    *is_send_request = 0;
+    *is_send_request = 1;
     
     // Create a ROS subscriber for the input point cloud
-    sub = nh_.subscribe<sensor_msgs::PointCloud2> ("pcl_output", 1, 
+    sub = nh_.subscribe<sensor_msgs::PointCloud2> ("gocator_3100/pcl_output", 1, 
                                                         &measureNode::cloud_cb, this);
     // Publish snap request
-    ohSnap = nh_.advertise<std_msgs::Empty>("snapshot_request",1);
+    ohSnap = nh_.advertise<std_msgs::Empty>("gocator_3100/snapshot_request",1);
 }
 
 measureNode::~measureNode()
@@ -147,7 +147,10 @@ void measureNode::updateViewer()
 
 void measureNode::sendRequest()
 {
-    std::cout<<"sending request\n";
-    ohSnap.publish(myMsg);
-    *is_send_request = 0;
+    if (*is_send_request)
+    {
+        std::cout<<"sending request\n";
+        ohSnap.publish(myMsg);
+        *is_send_request = 0;
+    }
 }
