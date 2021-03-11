@@ -1,5 +1,5 @@
 <launch>
-	<param name="filename" value="monkey.ply" />
+	<param name="filename" value="1.ply" />
     <node pkg="gocator_publisher" type="gocator_publisher" name="gocator_publisher" output="screen"/>
 
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find gocator_publisher)/param/rviz/default.rviz" />

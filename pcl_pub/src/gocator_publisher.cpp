@@ -11,7 +11,7 @@ int main (int argc, char **argv)
     ros::init (argc, argv, "pcl_publisher");
  
     ros::NodeHandle nh;
-    ros::Publisher pcl_pub = nh.advertise<sensor_msgs::PointCloud2> ("pcl_output", 1);
+    ros::Publisher pcl_pub = nh.advertise<sensor_msgs::PointCloud2> ("gocator_3200/pcl_output", 1);
     sensor_msgs::PointCloud2 output;
     
     // The point clouds we will be using

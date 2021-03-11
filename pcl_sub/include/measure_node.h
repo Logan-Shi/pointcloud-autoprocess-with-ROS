@@ -27,7 +27,7 @@ class measureNode
 
         //ros node handle
         ros::NodeHandle nh_;
-        double loop_rate_ = 10;
+        double loop_rate_ = 0.1;
         
         //Subscriber. pcl data
         ros::Subscriber sub;
@@ -46,6 +46,8 @@ class measureNode
 		int iterations = 10;
         
     public:
+
+
         //constructor
         measureNode();
         
@@ -59,7 +61,7 @@ class measureNode
 
 		pcl::IterativeClosestPoint<PointT, PointT> icp;
 		pcl::console::TicToc pcl_timer;
-		pcl::visualization::PCLVisualizer viewer;
+		boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer;
 
         // Defining a rotation matrix and translation vector
         Eigen::Matrix4d transformation_matrix = Eigen::Matrix4d::Identity();
@@ -68,7 +70,7 @@ class measureNode
 
 		void print4x4Matrix (const Eigen::Matrix4d & matrix);
 
-		int init(const std::string& file_name);
+		int init();
 
 		void cloud_cb (const sensor_msgs::PointCloud2ConstPtr& cloud_msg);
 

@@ -1,4 +1,5 @@
 <launch>
+	<param name="filename" value="2.ply" />
 	<node pkg="measure_node" type="measure_node" name="measure_node" output="screen"/>
 
     <node pkg="gocator_publisher" type="gocator_publisher" name="gocator_publisher" output="screen"/>

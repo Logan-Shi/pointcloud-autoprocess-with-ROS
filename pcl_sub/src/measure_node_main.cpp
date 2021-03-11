@@ -14,7 +14,7 @@ int main(int argc, char **argv)
   ros::Rate loop_rate(measure_node.rate());
 
   //fill cloud_in with ply file
-  measure_node.init("monkey");
+  measure_node.init();
   while(ros::ok())
   {
     while(measure_node.cloud_icp->points.size() == 0)
@@ -25,6 +25,7 @@ int main(int argc, char **argv)
       ros::spinOnce();
       loop_rate.sleep();
     }
+    std::cout<<"is_send_request:" << *(measure_node.is_send_request)<<"\n";
     ros::spinOnce();
     measure_node.updateViewer();
     measure_node.sendRequest();

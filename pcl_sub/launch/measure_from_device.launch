@@ -1,4 +1,5 @@
 <launch>
+	<param name="filename" value="1.ply" />
 	<node pkg="measure_node" type="measure_node" name="measure_node" output="screen"/>
 
     <include file="$(find gocator_3200)/launch/gocator_3200.launch"/> 
