@@ -12,7 +12,9 @@ packages for large-scale metrology project.
 
 [ ] NAN data from gocator 3210
 
-[ ] gocator 3210 saver
+[-] gocator 3210 saver
+
+[ ] crop box from original CAD model
 
 [ ] visualize saved ply
 
@@ -24,4 +26,4 @@ packages for large-scale metrology project.
 
 [ ] publish transform
 
-[ ] rosparam server
+[-] ros param setting from roslaunch 

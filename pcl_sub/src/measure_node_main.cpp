@@ -15,15 +15,17 @@ int main(int argc, char **argv)
 
   //fill cloud_in with ply file
   measure_node.init("monkey");
-
   while(ros::ok())
   {
-    while(measure_node.cloud_icp->size() == 0)
+    while(measure_node.cloud_icp->points.size() == 0)
     {
+      std::cout<<"waiting for cloud data\n";
+      *(measure_node.is_send_request) = 1;
       measure_node.sendRequest();
       ros::spinOnce();
+      loop_rate.sleep();
     }
-
+    ros::spinOnce();
     measure_node.updateViewer();
     measure_node.sendRequest();
     loop_rate.sleep();

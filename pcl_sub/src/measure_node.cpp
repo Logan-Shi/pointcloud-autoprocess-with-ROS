@@ -4,8 +4,10 @@ void keyboardEventOccurred (const pcl::visualization::KeyboardEvent& event,
                        void* request_void)
 {
     boost::shared_ptr<int> request = *static_cast<boost::shared_ptr<int> *> (request_void);
+    std::cout<<"request b4 keyboard: "<<*request<<"\n";
     if (event.getKeySym () == "space" && event.keyDown ())
         *request = 1;
+    std::cout<<"request after keyboard: "<<*request<<"\n";
 };
 
 measureNode::measureNode():
@@ -18,10 +20,10 @@ cloud_tr(new PointCloudT)
     *is_send_request = 1;
     
     // Create a ROS subscriber for the input point cloud
-    sub = nh_.subscribe<sensor_msgs::PointCloud2> ("gocator_3100/pcl_output", 1, 
+    sub = nh_.subscribe<sensor_msgs::PointCloud2> ("gocator_3200/pcl_output", 1, 
                                                         &measureNode::cloud_cb, this);
     // Publish snap request
-    ohSnap = nh_.advertise<std_msgs::Empty>("gocator_3100/snapshot_request",1);
+    ohSnap = nh_.advertise<std_msgs::Empty>("gocator_3200/snapshot_request",1);
 }
 
 measureNode::~measureNode()
@@ -33,7 +35,7 @@ int measureNode::init(const std::string& file_name)
 {
     //Read PLYFile
     std::string path = ros::package::getPath("gocator_publisher");
-    if (pcl::io::loadPLYFile(path + "/model/" + file_name + ".ply", *cloud_in) < 0)
+    if (pcl::io::loadPLYFile(path + "/model/test/" + file_name + ".ply", *cloud_in) < 0)
     {
       PCL_ERROR ("Error loading cloud.\n");
       return (-1);
@@ -150,7 +152,7 @@ void measureNode::sendRequest()
     if (*is_send_request)
     {
         std::cout<<"sending request\n";
-        ohSnap.publish(myMsg);
+        ohSnap.publish(myMsg);   
         *is_send_request = 0;
     }
 }
