@@ -25,7 +25,6 @@ int main(int argc, char **argv)
       ros::spinOnce();
       loop_rate.sleep();
     }
-    std::cout<<"is_send_request:" << *(measure_node.is_send_request)<<"\n";
     ros::spinOnce();
     measure_node.updateViewer();
     measure_node.sendRequest();

@@ -13,7 +13,8 @@ int main (int argc, char **argv)
     ros::NodeHandle nh;
     ros::Publisher pcl_pub = nh.advertise<sensor_msgs::PointCloud2> ("gocator_3200/pcl_output", 1);
     sensor_msgs::PointCloud2 output;
-    
+    bool is_first = 1;
+
     // The point clouds we will be using
     PointCloudT::Ptr cloud (new PointCloudT);  // Original point cloud
     //Read PLYFile
@@ -21,12 +22,14 @@ int main (int argc, char **argv)
     std::string filename = "monkey.ply";
     bool is_cropped = false;
     bool is_transformed = false;
+    bool is_once = true;
     int pub_rate = 1;
 
     nh.getParam("filename",filename);
     nh.getParam("is_cropped",is_cropped);
     nh.getParam("is_transformed",is_transformed);
     nh.getParam("pub_rate",pub_rate);
+    nh.getParam("is_once",is_once);
 
     ros::Rate loop_rate(pub_rate);
     if (pcl::io::loadPLYFile(path + "/model/test/" + filename, *cloud) < 0)
@@ -87,7 +90,16 @@ int main (int argc, char **argv)
  
     while (ros::ok())
     {
-        pcl_pub.publish(output);
+        if (is_once)
+        {
+            if (is_first)
+            {
+                pcl_pub.publish(output);
+                is_first = 0;
+            }
+        }else{
+            pcl_pub.publish(output);
+        }
         ros::spinOnce();
         loop_rate.sleep();
     }

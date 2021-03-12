@@ -34,12 +34,12 @@ measureNode::~measureNode()
 
 int measureNode::init()
 {
-    std::string filename = "monkey.ply";
-    nh_.getParam("filename",filename);
+    std::string template_filename = "monkey.ply";
+    nh_.getParam("template_filename",template_filename);
   
     //Read PLYFile
     std::string path = ros::package::getPath("gocator_publisher");
-    if (pcl::io::loadPLYFile(path + "/model/test/" + filename, *cloud_in) < 0)
+    if (pcl::io::loadPLYFile(path + "/model/test/" + template_filename, *cloud_in) < 0)
     {
       PCL_ERROR ("Error loading cloud.\n");
       return (-1);
@@ -76,7 +76,7 @@ void measureNode::cloud_cb (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
     icp.setInputSource (cloud_icp);
     icp.setInputTarget (cloud_in);
 
-    // initViewer();
+    initViewer();
 }
 
 void measureNode::initViewer()
