@@ -24,10 +24,14 @@ int main (int argc, char **argv)
     bool is_transformed = false;
     bool is_once = true;
     int pub_rate = 1;
+    double rotation_theta = 30;
+    double translation = 1;
 
     nh.getParam("filename",filename);
     nh.getParam("is_cropped",is_cropped);
     nh.getParam("is_transformed",is_transformed);
+    nh.getParam("rotation_theta",rotation_theta);
+    nh.getParam("translation",translation);
     nh.getParam("pub_rate",pub_rate);
     nh.getParam("is_once",is_once);
 
@@ -67,14 +71,14 @@ int main (int argc, char **argv)
         Eigen::Matrix4d transformation_matrix = Eigen::Matrix4d::Identity ();
       
         // A rotation matrix (see https://en.wikipedia.org/wiki/Rotation_matrix)
-        double theta = M_PI / 8;  // The angle of rotation in radians
+        double theta = rotation_theta/180*M_PI;  // The angle of rotation in radians
         transformation_matrix (0, 0) = std::cos (theta);
-        transformation_matrix (0, 1) = -sin (theta);
-        transformation_matrix (1, 0) = sin (theta);
+        transformation_matrix (0, 1) = -std::sin (theta);
+        transformation_matrix (1, 0) = std::sin (theta);
         transformation_matrix (1, 1) = std::cos (theta);
       
-        // A translation on Z axis (0.4 meters)
-        transformation_matrix (2, 3) = 0.4;
+        // A translation on Z axis (mm)
+        transformation_matrix (2, 3) = translation;
       
         // Display in terminal the transformation matrix
         std::cout << "Applying this rigid transformation to: cloud_in -> cloud_icp" << std::endl;

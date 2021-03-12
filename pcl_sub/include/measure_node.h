@@ -14,7 +14,6 @@
 #include <pcl/io/ply_io.h>
 #include <pcl/point_types.h>
 #include <pcl/registration/icp.h>
-#include <pcl/filters/crop_box.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/console/time.h>   // TicToc
 
@@ -39,11 +38,11 @@ class measureNode
         std_msgs::Empty myMsg;
 
 		// The color we will be using
-    	float bckgr_gray_level = 0.0;  // Black
+    	float bckgr_gray_level;  // Black
     	float txt_gray_lvl;
     	std::stringstream ss;
 
-		int iterations = 10;
+		int iterations;
         
     public:
 
@@ -57,7 +56,6 @@ class measureNode
         // The point clouds we will be using
 		PointCloudT::Ptr cloud_in;  // Original point cloud
 		PointCloudT::Ptr cloud_icp;  // Icped point cloud
-		PointCloudT::Ptr cloud_tr;  // original point cloud
 
 		pcl::IterativeClosestPoint<PointT, PointT> icp;
 		pcl::console::TicToc pcl_timer;

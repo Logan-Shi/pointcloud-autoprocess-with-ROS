@@ -15,9 +15,10 @@ measureNode::measureNode():
 is_send_request(new int),
 viewer(new pcl::visualization::PCLVisualizer("ICP demo")),
 cloud_in(new PointCloudT),
-cloud_icp(new PointCloudT),
-cloud_tr(new PointCloudT)
+cloud_icp(new PointCloudT)
 {
+    iterations = 1;
+    bckgr_gray_level = 0.0;
     *is_send_request = 1;
     
     // Create a ROS subscriber for the input point cloud
@@ -36,7 +37,7 @@ int measureNode::init()
 {
     std::string template_filename = "monkey.ply";
     nh_.getParam("template_filename",template_filename);
-  
+    nh_.getParam("iterations",iterations);
     //Read PLYFile
     std::string path = ros::package::getPath("gocator_publisher");
     if (pcl::io::loadPLYFile(path + "/model/test/" + template_filename, *cloud_in) < 0)
@@ -68,7 +69,6 @@ void measureNode::cloud_cb (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
         *is_send_request = 0;
         std::cout<<"data received\n";
     }
-    *cloud_tr = *cloud_icp;  // We backup cloud_icp into cloud_tr for later use
     
     // The Iterative Closest Point algorithm
     pcl_timer.tic ();
@@ -77,49 +77,31 @@ void measureNode::cloud_cb (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
     icp.setInputTarget (cloud_in);
 
     initViewer();
+    updateViewer();
 }
 
 void measureNode::initViewer()
 {
-    // Create two vertically separated viewports
-    int v1 (0);
-    int v2 (1);
-    viewer->createViewPort (0.0, 0.0, 0.5, 1.0, v1);
-    viewer->createViewPort (0.5, 0.0, 1.0, 1.0, v2);
-
     txt_gray_lvl = 1.0 - bckgr_gray_level;
     
     // Original point cloud is white
     pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_in_color_h (cloud_in, (int) 255 * txt_gray_lvl, (int) 255 * txt_gray_lvl,
                                                                                (int) 255 * txt_gray_lvl);
-    viewer->addPointCloud (cloud_in, cloud_in_color_h, "cloud_in_v1", v1);
-    viewer->addPointCloud (cloud_in, cloud_in_color_h, "cloud_in_v2", v2);
-    
-    // Transformed point cloud is green
-    pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_tr_color_h (cloud_tr, 20, 180, 20);
-    viewer->addPointCloud (cloud_tr, cloud_tr_color_h, "cloud_tr_v1", v1);
+    viewer->addPointCloud (cloud_in, cloud_in_color_h, "cloud_in");
     
     // ICP aligned point cloud is red
     pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_icp_color_h (cloud_icp, 180, 20, 20);
-    viewer->addPointCloud (cloud_icp, cloud_icp_color_h, "cloud_icp_v2", v2);
+    viewer->addPointCloud (cloud_icp, cloud_icp_color_h, "cloud_icp");
     
     // Adding text descriptions in each viewport
-    viewer->addText ("White: Original point cloud\nGreen: Matrix transformed point cloud", 10, 15, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "icp_info_1", v1);
-    viewer->addText ("White: Original point cloud\nRed: ICP aligned point cloud", 10, 15, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "icp_info_2", v2);
-    //viewer->addCube(box_min(0),box_max(0),box_min(1),box_max(1),box_min(2),box_max(2),1.0,0.0,0.0,"crop box",v1);
-    //viewer->addCoordinateSystem(1.0,0,0,0,"cloud_in",v1);
+    viewer->addText ("White: Original point cloud\nRed: ICP aligned point cloud", 10, 15, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "icp_info_2");
 
     ss << iterations;
     std::string iterations_cnt = "ICP iterations = " + ss.str ();
-    viewer->addText (iterations_cnt, 10, 60, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "iterations_cnt", v2);
+    viewer->addText (iterations_cnt, 10, 60, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "iterations_cnt");
     
     // Set background color
-    viewer->setBackgroundColor (bckgr_gray_level, bckgr_gray_level, bckgr_gray_level, v1);
-    viewer->setBackgroundColor (bckgr_gray_level, bckgr_gray_level, bckgr_gray_level, v2);
-    
-    // Set camera position and orientation
-    viewer->setCameraPosition (-3.68332, 2.94092, 5.71266, 0.289847, 0.921947, -0.256907, 0);
-    viewer->setSize (1280, 1024);  // Visualiser window size
+    viewer->setBackgroundColor (bckgr_gray_level, bckgr_gray_level, bckgr_gray_level);
     
     // Register keyboard callback :
     viewer->registerKeyboardCallback (&keyboardEventOccurred, (void*) &is_send_request);
@@ -127,33 +109,33 @@ void measureNode::initViewer()
 
 void measureNode::updateViewer()
 {
-    while (!*is_send_request)
+    // The Iterative Closest Point algorithm
+    pcl_timer.tic ();
+    std::cout<<"aligning...\n";
+    icp.align (*cloud_icp);
+    std::cout << "Applied "<<iterations<<" ICP iteration(s) in " << pcl_timer.toc () << " ms" << std::endl;
+    if (icp.hasConverged ())
+    {
+        // //printf ("\033[11A");  // Go up 11 lines in terminal output.
+        printf ("\nICP has converged, score is %+.0e\n", icp.getFitnessScore ());
+        // std::cout << "\nICP transformation " << ++iterations << " : cloud_icp -> cloud_in" << std::endl;
+        transformation_matrix *= icp.getFinalTransformation ().cast<double>();  // WARNING /!\ This is not accurate! For "educational" purpose only!
+        print4x4Matrix (transformation_matrix);  // Print the transformation between original pose and current pose
+        // ss.str("");
+        // ss << iterations;
+        // std::string iterations_cnt = "ICP iterations = " + ss.str ();
+        // viewer->updateText (iterations_cnt, 10, 60, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "iterations_cnt");
+    }
+    else
+    {
+        PCL_ERROR ("\nICP has not converged.\n");
+    }
+    while (!viewer->wasStopped())
     {
         viewer->spinOnce ();
         
-        // The Iterative Closest Point algorithm
-        pcl_timer.tic ();
-        std::cout<<"aligning...\n";
-        icp.align (*cloud_icp);
-        // std::cout << "Applied 1 ICP iteration in " << pcl_timer.toc () << " ms" << std::endl;
-        if (icp.hasConverged ())
-        {
-            // //printf ("\033[11A");  // Go up 11 lines in terminal output.
-            printf ("\nICP has converged, score is %+.0e\n", icp.getFitnessScore ());
-            std::cout << "\nICP transformation " << ++iterations << " : cloud_icp -> cloud_in" << std::endl;
-            transformation_matrix *= icp.getFinalTransformation ().cast<double>();  // WARNING /!\ This is not accurate! For "educational" purpose only!
-            print4x4Matrix (transformation_matrix);  // Print the transformation between original pose and current pose
-            ss.str("");
-            ss << iterations;
-            std::string iterations_cnt = "ICP iterations = " + ss.str ();
-            viewer->addText (iterations_cnt, 10, 60, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "iterations_cnt");
-            pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_icp_color_h (cloud_icp, 180, 20, 20);
-            viewer->addPointCloud (cloud_icp, cloud_icp_color_h, "cloud_icp_v2");
-        }
-        else
-        {
-            PCL_ERROR ("\nICP has not converged.\n");
-        }
+        pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_icp_color_h (cloud_icp, 180, 20, 20);
+        viewer->updatePointCloud (cloud_icp, cloud_icp_color_h, "cloud_icp_v2");
     }
 }
 
