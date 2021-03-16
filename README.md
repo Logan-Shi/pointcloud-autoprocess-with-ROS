@@ -16,6 +16,8 @@ packages for large-scale metrology project.
 
 [-] offline-sim done 
 
+[-] added target_generator: ```roslaunch target_generator target_generator.launch```
+
 [ ] test icp with 1/2.ply on sim
 
 [ ] crop box from original CAD model

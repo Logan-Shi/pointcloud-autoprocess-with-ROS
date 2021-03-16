@@ -2,7 +2,7 @@
 	<param name="filename" value="1_not_ordered_0.1mm.ply" />
 	<param name="is_cropped" value="false" />
 	<param name="is_transformed" value="true" />
-	<param name="rotation_theta" value="3"/><!-- rotation along z axis in deg -->
+	<param name="rotation_theta" value="5"/><!-- rotation along z axis in deg -->
 	<param name="translation" value="0"/><!-- translation along z axis in mm -->
 	<param name="pub_rate" value="1" />
 	<param name="is_once" value="true" />
