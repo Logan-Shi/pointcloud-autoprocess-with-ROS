@@ -2,6 +2,7 @@
 	<param name="filename" value="test.ply" />
 	<param name="radius" value="15" />
 	<param name="cloud_density" value="5" />
+	<param name="target_type" value="1"/><!-- 0 for circle, 1 for sphere -->
 
     <node pkg="target_generator" type="target_generator" name="target_generator" output="screen"/>
 

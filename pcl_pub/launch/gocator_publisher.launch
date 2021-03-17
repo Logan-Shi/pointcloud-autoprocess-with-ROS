@@ -1,5 +1,5 @@
 <launch>
-	<param name="filename" value="target_ball_2.ply" />
+	<param name="filename" value="test.ply" />
 	<param name="is_cropped" value="false" />
 	<param name="is_transformed" value="false" />
 	<param name="pub_rate" value="1" />
