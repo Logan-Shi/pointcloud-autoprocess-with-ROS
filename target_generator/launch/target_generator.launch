@@ -1,7 +1,7 @@
 <launch>
 	<param name="filename" value="test.ply" />
-	<param name="radius" value="30" />
-	<param name="cloud_density" value="1" />
+	<param name="radius" value="15" />
+	<param name="cloud_density" value="5" />
 
     <node pkg="target_generator" type="target_generator" name="target_generator" output="screen"/>
 
