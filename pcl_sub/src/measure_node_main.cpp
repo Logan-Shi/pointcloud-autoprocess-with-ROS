@@ -16,18 +16,19 @@ int main(int argc, char **argv)
   //fill cloud_in with ply file
   measure_node.init();
   
+  ros::Duration(1).sleep();//wait for cam to start
+
   while(ros::ok())
   {
-    while(measure_node.cloud_icp->points.size() == 0)
+    if(measure_node.cloud_icp->points.size() == 0)
     {
       std::cout<<"waiting for cloud data\n";
-      *(measure_node.is_send_request) = 1;
+      *(measure_node.request) = NEW_SHOT;
       measure_node.sendRequest();
       ros::spinOnce();
       loop_rate.sleep();
     }
     ros::spinOnce();
-    measure_node.sendRequest();
     loop_rate.sleep();
   }
 

@@ -1,6 +1,6 @@
 <launch>
-	<param name="iterations" value="1"/>
-	<param name="template_filename" value="1_not_ordered_0.1mm.ply" />
+	<param name="iterations" value="1000"/>
+	<param name="template_filename" value="1.ply" />
 	
 	<node pkg="measure_node" type="measure_node" name="measure_node" output="screen"/>
 

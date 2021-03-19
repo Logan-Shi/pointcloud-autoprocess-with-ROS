@@ -3,23 +3,27 @@
 void keyboardEventOccurred (const pcl::visualization::KeyboardEvent& event,
                        void* request_void)
 {
-    boost::shared_ptr<int> request = *static_cast<boost::shared_ptr<int> *> (request_void);
+    boost::shared_ptr<KeyMode> request = *static_cast<boost::shared_ptr<KeyMode> *> (request_void);
     std::cout<<"request b4 keyboard: "<<*request<<"\n";
     if (event.getKeySym () == "space" && event.keyDown ())
-        *request = 1;
+        *request = NEW_SHOT;
+    if (event.getKeySym () == "s" && event.keyDown ())
+        *request = SAVE;
     std::cout<<"request after keyboard: "<<*request<<"\n";
 };
 
 measureNode::measureNode():
 //nh_(ros::this_node::getName()),
-is_send_request(new int),
+request(new KeyMode(NEW_SHOT)),
 viewer(new pcl::visualization::PCLVisualizer("ICP demo")),
 cloud_in(new PointCloudT),
-cloud_icp(new PointCloudT)
+cloud_icp(new PointCloudT),
+coefficients (new pcl::ModelCoefficients),
+inliers (new pcl::PointIndices)
 {
+    capture_counter = 1;
     iterations = 1;
     bckgr_gray_level = 0.0;
-    *is_send_request = 1;
     
     // Create a ROS subscriber for the input point cloud
     sub = nh_.subscribe<sensor_msgs::PointCloud2> ("gocator_3200/pcl_output", 1, 
@@ -39,7 +43,7 @@ int measureNode::init()
     nh_.getParam("template_filename",template_filename);
     nh_.getParam("iterations",iterations);
     //Read PLYFile
-    std::string path = ros::package::getPath("gocator_publisher");
+    path = ros::package::getPath("gocator_publisher");
     if (pcl::io::loadPLYFile(path + "/model/test/" + template_filename, *cloud_in) < 0)
     {
       PCL_ERROR ("Error loading cloud.\n");
@@ -66,85 +70,106 @@ void measureNode::cloud_cb (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
     pcl::fromPCLPointCloud2(pcl_pc2,*cloud_icp);
     if (cloud_icp->points.size()!=0)
     {
-        *is_send_request = 0;
+        *request = WAIT;
         std::cout<<"data received\n";
+        initViewer();
+        updateViewer();
+        sendRequest();
     }
-    
-    // The Iterative Closest Point algorithm
-    pcl_timer.tic ();
-    icp.setMaximumIterations (iterations);
-    icp.setInputSource (cloud_icp);
-    icp.setInputTarget (cloud_in);
-
-    initViewer();
-    updateViewer();
 }
 
 void measureNode::initViewer()
 {
-    txt_gray_lvl = 1.0 - bckgr_gray_level;
+    // Create the segmentation object
+    pcl::SACSegmentation<PointT> seg;
+    // Optional
+    seg.setOptimizeCoefficients (true);
+    // Mandatory
+    seg.setModelType (pcl::SACMODEL_SPHERE);
+    seg.setMethodType (pcl::SAC_RANSAC);
+    seg.setDistanceThreshold (0.001);
+    seg.setRadiusLimits(14, 16);
+    seg.setMaxIterations (iterations);
     
-    // Original point cloud is white
-    pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_in_color_h (cloud_in, (int) 255 * txt_gray_lvl, (int) 255 * txt_gray_lvl,
-                                                                               (int) 255 * txt_gray_lvl);
-    viewer->addPointCloud (cloud_in, cloud_in_color_h, "cloud_in");
+    seg.setInputCloud (cloud_icp);
     
-    // ICP aligned point cloud is red
-    pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_icp_color_h (cloud_icp, 180, 20, 20);
+    pcl::console::TicToc pcl_timer;
+    pcl_timer.tic();
+    seg.segment (*inliers, *coefficients);
+    double pencentage = double(inliers->indices.size())/cloud_icp->size();
+    std::cout << "Applied "<<std::to_string(iterations) << " ransac iterations in " << pcl_timer.toc () << " ms" << std::endl;
+    pcl::ModelCoefficients sphere_coeff;
+    sphere_coeff.values.resize(4);
+    sphere_coeff.values[0] = coefficients->values[0]; //x
+    sphere_coeff.values[1] = coefficients->values[1]; //y
+    sphere_coeff.values[2] = coefficients->values[2]; //z
+    sphere_coeff.values[3] = coefficients->values[3]; //radius
+    
+    // Visualization
+    pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_icp_color_h (cloud_icp, 180,20,20);
     viewer->addPointCloud (cloud_icp, cloud_icp_color_h, "cloud_icp");
-    
+    viewer->addSphere(sphere_coeff);
     // Adding text descriptions in each viewport
-    viewer->addText ("White: Original point cloud\nRed: ICP aligned point cloud", 10, 15, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "icp_info_2");
-
+    viewer->addText ("Red: Original point cloud\nWhite: Ransac result", 10, 10, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "ransac_info");
+    std::stringstream ss;
     ss << iterations;
-    std::string iterations_cnt = "ICP iterations = " + ss.str ();
-    viewer->addText (iterations_cnt, 10, 60, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "iterations_cnt");
-    
-    // Set background color
+    std::string iterations_cnt = "RANSAC iterations = " + ss.str ();
+    viewer->addText (iterations_cnt, 10, 50, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "iterations_cnt");
+    viewer->addText ("target ball radius: " + std::to_string(coefficients->values[3])+"\n", 10, 70, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "radius");
+    viewer->addText ("Pencentage of inliers: " + std::to_string(pencentage) + "\n", 10, 90, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "inliers pencentage");
+       // Set background color
     viewer->setBackgroundColor (bckgr_gray_level, bckgr_gray_level, bckgr_gray_level);
-    
+       // Set camera position and orientation
+    viewer->setCameraPosition (0, 0, 200, 0, 0, 0, 0);
+    viewer->addCoordinateSystem(10);
+    viewer->setSize (1280, 1024);  // Visualiser window size
+
     // Register keyboard callback :
-    viewer->registerKeyboardCallback (&keyboardEventOccurred, (void*) &is_send_request);
+    viewer->registerKeyboardCallback (&keyboardEventOccurred, (void*) &request);
 }
 
 void measureNode::updateViewer()
 {
-    // The Iterative Closest Point algorithm
-    pcl_timer.tic ();
-    std::cout<<"aligning...\n";
-    icp.align (*cloud_icp);
-    std::cout << "Applied "<<iterations<<" ICP iteration(s) in " << pcl_timer.toc () << " ms" << std::endl;
-    if (icp.hasConverged ())
-    {
-        // //printf ("\033[11A");  // Go up 11 lines in terminal output.
-        printf ("\nICP has converged, score is %+.0e\n", icp.getFitnessScore ());
-        // std::cout << "\nICP transformation " << ++iterations << " : cloud_icp -> cloud_in" << std::endl;
-        transformation_matrix *= icp.getFinalTransformation ().cast<double>();  // WARNING /!\ This is not accurate! For "educational" purpose only!
-        print4x4Matrix (transformation_matrix);  // Print the transformation between original pose and current pose
-        // ss.str("");
-        // ss << iterations;
-        // std::string iterations_cnt = "ICP iterations = " + ss.str ();
-        // viewer->updateText (iterations_cnt, 10, 60, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "iterations_cnt");
-    }
-    else
-    {
-        PCL_ERROR ("\nICP has not converged.\n");
-    }
     while (!viewer->wasStopped())
     {
         viewer->spinOnce ();
         
-        pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_icp_color_h (cloud_icp, 180, 20, 20);
-        viewer->updatePointCloud (cloud_icp, cloud_icp_color_h, "cloud_icp_v2");
+        // The user pressed "space" :
+        if (*request == NEW_SHOT)
+        {
+            PCL_ERROR ("\nBad result, next sample.\n");
+            *request = NEW_SHOT;
+        }
+    
+        if (*request == SAVE)
+        {
+            std::string file_name = path + "/model/test/"+ std::to_string(capture_counter) +".ply";
+            if( pcl::io::savePLYFileASCII (file_name, *cloud_icp) != 0)
+            {
+                std::cout<<"failed to  save "<<file_name<<"\n";
+            }else{
+                std::cout<<file_name<<" saved successflly!\n";
+                capture_counter++;
+            }
+
+            results.open(path + "results/test.txt", std::ios_base::app);
+            results << "sphere is positioned at: (in frame)\n";
+            results << "  Translation vector :\n";
+            results << coefficients->values[0]<< ", " << coefficients->values[1] << ", " << coefficients->values[2]<<"\n";
+            results.close();
+            std::cout<<"matching finished,exiting...\n";
+            *request = NEW_SHOT;
+        }
     }
 }
 
 void measureNode::sendRequest()
 {
-    if (*is_send_request)
+    if (*request != WAIT)
     {
         std::cout<<"sending request\n";
-        ohSnap.publish(myMsg);   
-        *is_send_request = 0;
+        ohSnap.publish(myMsg);
+        viewer->close(); 
+        *request = WAIT;
     }
 }

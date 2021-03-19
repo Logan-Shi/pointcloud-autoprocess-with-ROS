@@ -17,8 +17,16 @@
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/console/time.h>   // TicToc
 
+#include <pcl/ModelCoefficients.h>
+
+#include <pcl/sample_consensus/method_types.h>
+#include <pcl/sample_consensus/model_types.h>
+#include <pcl/segmentation/sac_segmentation.h>
+
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloudT;
+
+enum KeyMode {WAIT = 0,NEW_SHOT,SAVE};
 
 class measureNode
 {
@@ -46,7 +54,6 @@ class measureNode
         
     public:
 
-
         //constructor
         measureNode();
         
@@ -58,13 +65,20 @@ class measureNode
 		PointCloudT::Ptr cloud_icp;  // Icped point cloud
 
 		pcl::IterativeClosestPoint<PointT, PointT> icp;
-		pcl::console::TicToc pcl_timer;
+
 		boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer;
 
         // Defining a rotation matrix and translation vector
         Eigen::Matrix4d transformation_matrix = Eigen::Matrix4d::Identity();
 
-        boost::shared_ptr<int> is_send_request;
+        boost::shared_ptr<KeyMode> request;
+
+        std::string path;
+        ofstream results;
+        int capture_counter;
+
+        pcl::ModelCoefficients::Ptr coefficients;
+        pcl::PointIndices::Ptr inliers;
 
 		void print4x4Matrix (const Eigen::Matrix4d & matrix);
 
