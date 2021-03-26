@@ -45,31 +45,11 @@ class measureNode
         // Cue to snap
         std_msgs::Empty myMsg;
 
-		// The color we will be using
-    	float bckgr_gray_level;  // Black
-    	float txt_gray_lvl;
-    	std::stringstream ss;
-
 		int iterations;
-        
-    public:
 
-        //constructor
-        measureNode();
-        
-        //destructor
-        ~measureNode();
+        PointCloudT::Ptr cloud_icp;  // Icped point cloud
 
-        // The point clouds we will be using
-		PointCloudT::Ptr cloud_in;  // Original point cloud
-		PointCloudT::Ptr cloud_icp;  // Icped point cloud
-
-		pcl::IterativeClosestPoint<PointT, PointT> icp;
-
-		boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer;
-
-        // Defining a rotation matrix and translation vector
-        Eigen::Matrix4d transformation_matrix = Eigen::Matrix4d::Identity();
+        boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer;
 
         boost::shared_ptr<KeyMode> request;
 
@@ -78,9 +58,14 @@ class measureNode
         int capture_counter;
 
         pcl::ModelCoefficients::Ptr coefficients;
-        pcl::PointIndices::Ptr inliers;
+        
+    public:
 
-		void print4x4Matrix (const Eigen::Matrix4d & matrix);
+        //constructor
+        measureNode();
+        
+        //destructor
+        ~measureNode();
 
 		int init();
 
