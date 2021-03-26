@@ -16,7 +16,7 @@ int main(int argc, char **argv)
   //fill cloud_in with ply file
   measure_node.init();
   
-  ros::Duration(1).sleep();//wait for cam to start
+  ros::Duration(2).sleep();//wait for cam to start
 
   while(ros::ok())
   {
@@ -25,8 +25,6 @@ int main(int argc, char **argv)
       std::cout<<"waiting for cloud data\n";
       *(measure_node.request) = NEW_SHOT;
       measure_node.sendRequest();
-      ros::spinOnce();
-      loop_rate.sleep();
     }
     ros::spinOnce();
     loop_rate.sleep();

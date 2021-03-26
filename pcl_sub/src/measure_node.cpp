@@ -15,7 +15,7 @@ void keyboardEventOccurred (const pcl::visualization::KeyboardEvent& event,
 measureNode::measureNode():
 //nh_(ros::this_node::getName()),
 request(new KeyMode(NEW_SHOT)),
-viewer(new pcl::visualization::PCLVisualizer("ICP demo")),
+viewer(new pcl::visualization::PCLVisualizer("Ransac demo")),
 cloud_in(new PointCloudT),
 cloud_icp(new PointCloudT),
 coefficients (new pcl::ModelCoefficients),
@@ -107,16 +107,16 @@ void measureNode::initViewer()
     
     // Visualization
     pcl::visualization::PointCloudColorHandlerCustom<PointT> cloud_icp_color_h (cloud_icp, 180,20,20);
-    viewer->addPointCloud (cloud_icp, cloud_icp_color_h, "cloud_icp");
+    viewer->addPointCloud (cloud_icp, cloud_icp_color_h);
     viewer->addSphere(sphere_coeff);
     // Adding text descriptions in each viewport
-    viewer->addText ("Red: Original point cloud\nWhite: Ransac result", 10, 10, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "ransac_info");
+    viewer->addText ("Red: Original point cloud\nWhite: Ransac result", 10, 10, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl);
     std::stringstream ss;
     ss << iterations;
     std::string iterations_cnt = "RANSAC iterations = " + ss.str ();
-    viewer->addText (iterations_cnt, 10, 50, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "iterations_cnt");
-    viewer->addText ("target ball radius: " + std::to_string(coefficients->values[3])+"\n", 10, 70, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "radius");
-    viewer->addText ("Pencentage of inliers: " + std::to_string(pencentage) + "\n", 10, 90, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "inliers pencentage");
+    viewer->addText (iterations_cnt, 10, 50, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl);
+    viewer->addText ("target ball radius: " + std::to_string(coefficients->values[3])+"\n", 10, 70, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl);
+    viewer->addText ("Pencentage of inliers: " + std::to_string(pencentage) + "\n", 10, 90, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl);
        // Set background color
     viewer->setBackgroundColor (bckgr_gray_level, bckgr_gray_level, bckgr_gray_level);
        // Set camera position and orientation
@@ -169,7 +169,6 @@ void measureNode::sendRequest()
     {
         std::cout<<"sending request\n";
         ohSnap.publish(myMsg);
-        viewer->close(); 
         *request = WAIT;
     }
 }

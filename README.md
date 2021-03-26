@@ -12,19 +12,27 @@ packages for large-scale metrology project.
 
 [-] inf data from gocator 3210 : used conditional removal
 
-[-] gocator 3210 saver: ```roslaunch gocator_3200 gocator_saver.launch``` (space to discard, "s" to save)
+[-] gocator 3210 saver: ```roslaunch gocator_3200 gocator_saver.launch``` (space for new shot, "s" to save)
 
 [-] offline-sim done 
 
 [-] added target_generator: ```roslaunch target_generator target_generator.launch```
 
-[ ] test icp with 1/2.ply on sim
+[-] output format
 
-[ ] crop box from original CAD model
+[-] saver capture after save off
+
+[-] custom target_ball batch
+
+[ ] custom circle radius
+
+[ ] filter redundant plane
+
+[ ] test icp with 1/2.ply on sim
 
 [-] visualize saved ply: ```roslaunch gocator_publisher gocator_publisher.launch```
 
-[ ] update pcl and vtk to fix close viewer bug
+[-] update pcl and vtk
 
 [ ] serial points measuring support
 
