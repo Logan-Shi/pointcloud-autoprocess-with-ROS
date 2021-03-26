@@ -1,0 +1,11 @@
+<launch>
+	<param name="iterations" value="1000"/>
+	<param name="measure_type" value="0"/><!-- 0 for target_ball, 1 for workpiece -->
+	<!-- <param name="template_filename" value="1.ply" /> -->
+	
+	<node pkg="measure_node" type="measure_node" name="measure_node" output="screen"/>
+
+    <include file="$(find gocator_3200)/launch/gocator_3200.launch"/> 
+
+<!--     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find gocator_publisher)/param/rviz/default.rviz" /> -->
+</launch>

@@ -20,8 +20,6 @@
   <exec_depend>pcl_ros</exec_depend>
   <exec_depend>roscpp</exec_depend>
   <exec_depend>sensor_msgs</exec_depend>
-  <build_depend>libpcl-all-dev</build_depend>
-  <exec_depend>libpcl-all</exec_depend>
 
   <export>
   </export>

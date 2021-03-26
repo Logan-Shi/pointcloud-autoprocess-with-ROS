@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <ctime>
 
 #include <ros/package.h>
 #include <ros/ros.h>
@@ -23,9 +24,33 @@
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/segmentation/sac_segmentation.h>
 
+#include <pcl/filters/extract_indices.h>
+#include <pcl/features/don.h>
+
+#include <pcl/search/organized.h>
+#include <pcl/search/kdtree.h>
+
+#include <pcl/features/normal_3d.h>
+#include <pcl/filters/conditional_removal.h>
+
+#include <pcl/filters/covariance_sampling.h>
+#include <pcl/filters/normal_space.h>
+#include <pcl/kdtree/kdtree_flann.h>
+#include <pcl/features/boundary.h>
+
+#include <pcl/search/impl/search.hpp>
+#ifndef PCL_NO_PRECOMPILE
+#include <pcl/impl/instantiate.hpp>
+#include <pcl/point_types.h>
+PCL_INSTANTIATE(Search, PCL_POINT_TYPES)
+#endif // PCL_NO_PRECOMPILE
+
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloudT;
+typedef pcl::PointNormal PointNT;
+typedef pcl::PointCloud<PointNT> PointCloudNT;
 
+enum RunMode {TARGET_BALL = 0,WORKPIECE};
 enum KeyMode {WAIT = 0,NEW_SHOT,SAVE};
 
 class measureNode
@@ -35,6 +60,8 @@ class measureNode
         //ros node handle
         ros::NodeHandle nh_;
         double loop_rate_ = 0.1;
+
+        RunMode runMode;
         
         //Subscriber. pcl data
         ros::Subscriber sub;
@@ -47,7 +74,9 @@ class measureNode
 
 		int iterations;
 
-        PointCloudT::Ptr cloud_icp;  // Icped point cloud
+        PointCloudT::Ptr cloud_in;  // Icped point cloud
+
+        pcl::console::TicToc pcl_timer;
 
         boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer;
 
@@ -67,13 +96,13 @@ class measureNode
         //destructor
         ~measureNode();
 
-		int init();
-
 		void cloud_cb (const sensor_msgs::PointCloud2ConstPtr& cloud_msg);
 
-		void initViewer();
+		void measure_target_ball();
 
-		void updateViewer();
+        void measure_workpiece();
+
+		void checkResult();
 
 		void sendRequest();
 

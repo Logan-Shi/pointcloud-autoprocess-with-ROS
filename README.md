@@ -24,17 +24,23 @@ packages for large-scale metrology project.
 
 [-] custom target_ball batch
 
+[-] added online target ball measure: ```roslaunch measure_node measure_target_ball```
+
+[-] added online workpiece measure: ```roslaunch measure_node measure_workpiece```
+
 [ ] custom circle radius
 
 [ ] filter redundant plane
 
-[ ] test icp with 1/2.ply on sim
+[ ] read in custom params for workpiece measure
+
+[-] test icp with 1/2.ply on sim
 
 [-] visualize saved ply: ```roslaunch gocator_publisher gocator_publisher.launch```
 
 [-] update pcl and vtk
 
-[ ] serial points measuring support
+[-] serial points measuring support
 
 [-] send snap request with keyboard
 

@@ -12,22 +12,12 @@ int main(int argc, char **argv)
 
   //set loop rate
   ros::Rate loop_rate(measure_node.rate());
-
-  //fill cloud_in with ply file
-  measure_node.init();
   
   ros::Duration(10).sleep();//wait for cam to start
   measure_node.sendRequest();
 
   while(ros::ok())
   {
-    // if(measure_node.cloud_icp->points.size() == 0)
-    // {
-    //   std::cout<<"waiting for cloud data\n";
-    //   ros::Duration(20).sleep();      
-    //   *(measure_node.request) = NEW_SHOT;
-    //   measure_node.sendRequest();
-    // }
     ros::spinOnce();
     loop_rate.sleep();
   }
