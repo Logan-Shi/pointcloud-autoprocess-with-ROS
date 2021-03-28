@@ -89,6 +89,10 @@ void measureNode::cloud_cb (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
             measure_workpiece(cloud_in);
         }
         checkResult();
+        viewer->removeAllPointClouds();
+        viewer->removeAllShapes();
+        // viewer->removeAllCoordinateSystems();
+        viewer->removeText3D();
         // sendRequest();
     }
 }
@@ -111,7 +115,7 @@ void measureNode::measure_target_ball(const PointCloudT::Ptr cloud_in)
     pcl_timer.tic();
     pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
     seg.segment (*inliers, *coefficients);
-    // double percentage = double(inliers->indices.size())/cloud_in->size();
+    double percentage = double(inliers->indices.size())/cloud_in->size();
     std::cout << "Applied "<<std::to_string(iterations) << " ransac iterations in " << pcl_timer.toc () << " ms" << std::endl;
     pcl::ModelCoefficients sphere_coeff;
     sphere_coeff.values.resize(4);
@@ -227,10 +231,6 @@ void measureNode::sendRequest()
     if (*request != WAIT)
     {
         std::cout<<("sending request\n");
-        viewer->removeAllPointClouds();
-        viewer->removeAllShapes();
-        // viewer->removeAllCoordinateSystems();
-        viewer->removeText3D();
         ohSnap.publish(myMsg);
         *request = WAIT;
     }
