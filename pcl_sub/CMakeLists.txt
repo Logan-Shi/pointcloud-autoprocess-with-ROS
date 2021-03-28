@@ -16,11 +16,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-# Set source files for the ROS node
-SET(SRCS_NODE 
-    src/measure_node.cpp
-    src/measure_node_main.cpp
-)
+aux_source_directory (src SRC_LIST)
 
-add_executable(${PROJECT_NAME} ${SRCS_NODE})
+add_executable(${PROJECT_NAME} ${SRC_LIST})
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
