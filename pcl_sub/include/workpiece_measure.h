@@ -17,6 +17,7 @@
 #include <pcl/segmentation/sac_segmentation.h>
 
 #include <pcl/filters/extract_indices.h>
+#include <pcl/filters/crop_box.h>
 #include <pcl/features/don.h>
 
 #include <pcl/search/organized.h>
@@ -42,8 +43,9 @@ typedef pcl::PointCloud<PointT> PointCloudT;
 typedef pcl::PointNormal PointNT;
 typedef pcl::PointCloud<PointNT> PointCloudNT;
 
-double calc_circle(const PointCloudT::Ptr cloud_boundary, pcl::ModelCoefficients::Ptr coefficients_circle, double diameter, double buffer, double threshold,int iterations);
+double calc_circle(const PointCloudT::Ptr cloud_boundary, pcl::ModelCoefficients::Ptr coefficients_circle, double percentage, double diameter, double buffer, double threshold, int iterations);
 void calc_boundary(const PointCloudT::Ptr cloud_p, PointCloudT::Ptr cloud_boundary,double,double,double);
 double calc_plane(const PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_p,double z_min,double z_max, int iterations);
+PointCloudT::Ptr crop_box(const PointCloudT::Ptr cloud_in, double box_size);
 
 #endif

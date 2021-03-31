@@ -141,12 +141,19 @@ void measureNode::measure_target_ball(const PointCloudT::Ptr cloud_in)
 void measureNode::measure_workpiece(const PointCloudT::Ptr cloud_in)
 {
     PointCloudT::Ptr cloud_p (new PointCloudT);
-    calc_plane(cloud_in, cloud_p, z_min, z_max, iterations);
-
+    calc_plane(cloud_in, cloud_p, z_min, z_max,iterations);
+  
     PointCloudT::Ptr cloud_boundary (new PointCloudT);
     calc_boundary(cloud_p, cloud_boundary, radius_search_small,radius_search_large,angle_threshold);
-
-    calc_circle(cloud_boundary, coefficients, diameter, buffer, threshold,iterations);
+  
+    double percentage = 0;
+    pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
+    percentage = calc_circle(cloud_boundary, coefficients, percentage, 4, buffer, threshold,iterations);
+    std::cout<<"percentage: "<<percentage<<"\n";
+    percentage = calc_circle(cloud_boundary, coefficients, percentage, 9, buffer, threshold,iterations);
+    std::cout<<"percentage: "<<percentage<<"\n";
+    percentage = calc_circle(cloud_boundary, coefficients, percentage, 26, buffer, threshold,iterations);
+    std::cout<<"percentage: "<<percentage<<"\n";
 
     float txt_gray_lvl = 1.0;
   
@@ -204,6 +211,18 @@ void measureNode::checkResult()
             ROS_INFO ("\nnext sample.\n");
             sendRequest();
             is_quit = true;
+            // std::string file_name = file_path + "/model/test/"+ std::to_string(capture_counter) +".ply";
+            // if( pcl::io::savePLYFileASCII (file_name, *cloud_in) != 0)
+            // {
+            //     std::cout<<"failed to  save "<<file_name<<"\n";
+            // }else{
+            //     std::cout<<file_name<<" saved successflly!\n";
+            //     capture_counter++;
+            // }
+
+            results.open(file_path + "/results/test.txt", std::ios_base::app);
+            results << coefficients->values[0]<< ", " << coefficients->values[1] << ", " << coefficients->values[2]<<"\n";
+            results.close();
         }
     
         if (*request == SAVE)
@@ -213,13 +232,13 @@ void measureNode::checkResult()
             {
                 std::cout<<"failed to  save "<<file_name<<"\n";
             }else{
-                std::cout<<file_name<<" saved successflly!\n";
+                std::cout<<file_name<<" saved successfully!\n";
                 capture_counter++;
             }
 
-            results.open(file_path + "/results/test.txt", std::ios_base::app);
-            results << coefficients->values[0]<< ", " << coefficients->values[1] << ", " << coefficients->values[2]<<"\n";
-            results.close();
+            // results.open(file_path + "/results/test.txt", std::ios_base::app);
+            // results << coefficients->values[0]<< ", " << coefficients->values[1] << ", " << coefficients->values[2]<<"\n";
+            // results.close();
             // std::cout<<path + "/results/test.txt saved successflly!\n";
             *request = WAIT;
         }

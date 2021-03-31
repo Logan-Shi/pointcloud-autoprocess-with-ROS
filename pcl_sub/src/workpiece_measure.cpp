@@ -1,6 +1,6 @@
 #include <workpiece_measure.h>
 
-double calc_circle(const PointCloudT::Ptr cloud_boundary, pcl::ModelCoefficients::Ptr coefficients_circle, double diameter, double buffer, double threshold, int iterations)
+double calc_circle(const PointCloudT::Ptr cloud_boundary, pcl::ModelCoefficients::Ptr coefficients_circle, double percentage, double diameter, double buffer, double threshold, int iterations)
 {
   std::cout << "input size:  "<<std::to_string(cloud_boundary->size()) <<"" << std::endl;
   // Create the segmentation object
@@ -20,11 +20,11 @@ double calc_circle(const PointCloudT::Ptr cloud_boundary, pcl::ModelCoefficients
 
   pcl::ExtractIndices<PointT> extract_circle;
   seg_circle.setInputCloud (cloud_boundary);
-  // pcl::ModelCoefficients::Ptr coefficients_circle (new pcl::ModelCoefficients);
+  pcl::ModelCoefficients::Ptr coefficients_circle_new (new pcl::ModelCoefficients);
   pcl::PointIndices::Ptr inliers_circle (new pcl::PointIndices);
   
   // pcl_timer.tic ();
-  seg_circle.segment (*inliers_circle, *coefficients_circle);
+  seg_circle.segment (*inliers_circle, *coefficients_circle_new);
   // if (inliers_circle->indices.size() == 0 )
   // {
   //   PCL_ERROR("\n can not extract circle from given boundaries\n");
@@ -37,10 +37,15 @@ double calc_circle(const PointCloudT::Ptr cloud_boundary, pcl::ModelCoefficients
   // std::cout << "Applied "<<std::to_string(iterations) << " circle ransac iterations in " << pcl_timer.toc () << " ms" << std::endl;
   std::cout << "Circle size:  "<<std::to_string(inliers_circle->indices.size()) <<"" << std::endl;
 
-  double percentage = double(inliers_circle->indices.size())/cloud_boundary->size();
+  double percentage_new = double(inliers_circle->indices.size())/cloud_boundary->size();
 
-  std::cout<<"circle percentage: "<<percentage<<"\n";
-  std::cout<<"circle radius: "<<coefficients_circle->values[3]<<"\n";
+  std::cout<<"circle percentage: "<<percentage_new<<"\n";
+  // std::cout<<"circle radius: "<<coefficients_circle->values[3]<<"\n";
+  if (percentage_new > percentage)
+  {
+    percentage = percentage_new; 
+    *coefficients_circle = *coefficients_circle_new;
+  }
   return percentage;
 }
 
@@ -78,15 +83,9 @@ void calc_boundary(const PointCloudT::Ptr cloud_p, PointCloudT::Ptr cloud_bounda
 double calc_plane(const PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_p,double z_min,double z_max,int iterations)
 {
   double percentage = 0;
+
   PointCloudT::Ptr cloud_filtered (new PointCloudT);
-  pcl::ConditionAnd<PointT>::Ptr range_cond(new pcl::ConditionAnd<PointT> ());
-  range_cond->addComparison(pcl::FieldComparison<PointT>::ConstPtr (new pcl::FieldComparison<PointT>("z",pcl::ComparisonOps::GT,z_min)));
-  range_cond->addComparison(pcl::FieldComparison<PointT>::ConstPtr (new pcl::FieldComparison<PointT>("z",pcl::ComparisonOps::LT,z_max)));
-  pcl::ConditionalRemoval<PointT> condrem;
-  condrem.setCondition(range_cond);
-  condrem.setInputCloud(cloud_in);
-  condrem.setKeepOrganized(false);
-  condrem.filter(*cloud_filtered);
+  cloud_filtered = crop_box(cloud_in,z_max);
 
   // Create the segmentation object
   pcl::SACSegmentation<PointT> seg;
@@ -120,4 +119,27 @@ double calc_plane(const PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_p,doub
 
   percentage = double(inliers->indices.size())/cloud_filtered->size();
   return percentage;
+}
+
+PointCloudT::Ptr crop_box(const PointCloudT::Ptr cloud_in, double box_size)
+{
+  PointCloudT::Ptr cloud_filtered (new PointCloudT);
+  pcl::CropBox<PointT> box_filter(true); //crop out other points
+  Eigen::Vector4f box_center(0,
+                             0,
+                             0,
+                             0);
+  Eigen::Vector4f box_min(box_center(0) - box_size/2,
+                          box_center(1) - box_size/2,
+                          box_center(2) - box_size,
+                          1.0);
+  Eigen::Vector4f box_max(box_center(0) + box_size/2,
+                          box_center(1) + box_size/2,
+                          box_center(2) + box_size,
+                          1.0);
+  box_filter.setMin(box_min);
+  box_filter.setMax(box_max);
+  box_filter.setInputCloud(cloud_in);
+  box_filter.filter(*cloud_filtered);
+  return cloud_filtered;
 }
