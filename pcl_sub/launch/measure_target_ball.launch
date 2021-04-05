@@ -12,6 +12,8 @@
 	
 	<node pkg="measure_node" type="measure_node" name="measure_node" output="screen"/>
 
+	<node pkg="gocator_publisher" type="server.py" name="server" output="screen"/>
+
     <include file="$(find gocator_3200)/launch/gocator_3200.launch"/> 
 
 <!--     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find gocator_publisher)/param/rviz/default.rviz" /> -->

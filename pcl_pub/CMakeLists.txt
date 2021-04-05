@@ -19,3 +19,7 @@ include_directories(
 )
 add_executable(gocator_publisher src/gocator_publisher.cpp)
 target_link_libraries(gocator_publisher ${catkin_LIBRARIES})
+
+catkin_install_python(PROGRAMS scripts/server.py scripts/test_server.py
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)

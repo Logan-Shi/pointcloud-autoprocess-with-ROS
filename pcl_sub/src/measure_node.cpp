@@ -200,7 +200,10 @@ void measureNode::measure_workpiece(const PointCloudT::Ptr cloud_in)
 
 void measureNode::checkResult()
 {
-    bool is_quit = false;
+    bool is_quit = true;
+    results.open(file_path + "/results/test.txt", std::ios_base::app);
+    results << coefficients->values[0]<< ", " << coefficients->values[1] << ", " << coefficients->values[2]<<"\n";
+    results.close();
     while (!is_quit)
     {
         viewer->spinOnce ();
@@ -219,10 +222,6 @@ void measureNode::checkResult()
             //     std::cout<<file_name<<" saved successflly!\n";
             //     capture_counter++;
             // }
-
-            results.open(file_path + "/results/test.txt", std::ios_base::app);
-            results << coefficients->values[0]<< ", " << coefficients->values[1] << ", " << coefficients->values[2]<<"\n";
-            results.close();
         }
     
         if (*request == SAVE)
