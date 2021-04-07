@@ -14,9 +14,7 @@ void keyboardEventOccurred (const pcl::visualization::KeyboardEvent& event,
 
 measureNode::measureNode():
 request(new KeyMode(NEW_SHOT)),
-viewer(new pcl::visualization::PCLVisualizer("Ransac demo")),
-cloud_in(new PointCloudT),
-coefficients (new pcl::ModelCoefficients)
+viewer(new pcl::visualization::PCLVisualizer("Ransac demo"))
 {
     capture_counter = 1;
     iterations = 1;
@@ -26,6 +24,7 @@ coefficients (new pcl::ModelCoefficients)
                                                         &measureNode::cloud_cb, this);
     // Publish snap request
     ohSnap = nh_.advertise<std_msgs::Empty>("gocator_3200/snapshot_request",1);
+    moveIt = nh_.advertise<std_msgs::Empty>("gocator_3200/move_request",1);
 
     int measure_type;
     nh_.getParam("iterations",iterations);
@@ -44,7 +43,7 @@ coefficients (new pcl::ModelCoefficients)
     if (runMode == TARGET_BALL)
     {
         results.open(file_path + "/results/test.txt", std::ios_base::app);
-        results << "measuring TARGET_BALL: \n";
+        results << "\nmeasuring TARGET_BALL: \n";
         results.close();
         // measure_target_ball();
     }
@@ -52,7 +51,7 @@ coefficients (new pcl::ModelCoefficients)
     if (runMode == WORKPIECE)
     {
         results.open(file_path + "/results/test.txt", std::ios_base::app);
-        results << "measuring WORKPIECE at: \n";
+        results << "\nmeasuring WORKPIECE at: \n";
         results.close();
         // measure_workpiece();
     }
@@ -65,6 +64,8 @@ measureNode::~measureNode()
 
 void measureNode::cloud_cb (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
 {
+    std::cout<<"cloud received\n";
+    PointCloudT::Ptr cloud_in (new PointCloudT);
     pcl::PCLPointCloud2 pcl_pc2;
     // Convert to PCL data type
     pcl_conversions::toPCL(*cloud_msg, pcl_pc2);
@@ -88,7 +89,6 @@ void measureNode::cloud_cb (const sensor_msgs::PointCloud2ConstPtr& cloud_msg)
             // results.close();
             measure_workpiece(cloud_in);
         }
-        checkResult();
         viewer->removeAllPointClouds();
         viewer->removeAllShapes();
         // viewer->removeAllCoordinateSystems();
@@ -114,6 +114,7 @@ void measureNode::measure_target_ball(const PointCloudT::Ptr cloud_in)
     
     pcl_timer.tic();
     pcl::PointIndices::Ptr inliers (new pcl::PointIndices);
+    pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
     seg.segment (*inliers, *coefficients);
     double percentage = double(inliers->indices.size())/cloud_in->size();
     std::cout << "Applied "<<std::to_string(iterations) << " ransac iterations in " << pcl_timer.toc () << " ms" << std::endl;
@@ -135,7 +136,12 @@ void measureNode::measure_target_ball(const PointCloudT::Ptr cloud_in)
     viewer->setSize (1280, 1024);  // Visualiser window size
 
     // Register keyboard callback :
-    viewer->registerKeyboardCallback (&keyboardEventOccurred, (void*) &request);
+    // viewer->registerKeyboardCallback (&keyboardEventOccurred, (void*) &request);
+
+    results.open(file_path + "/results/test.txt", std::ios_base::app);
+    results << "["<<coefficients->values[0]<< ", " << coefficients->values[1] << ", " << coefficients->values[2]<<"]\n";
+    results.close();
+    moveIt.publish(myMsg);
 }
 
 void measureNode::measure_workpiece(const PointCloudT::Ptr cloud_in)
@@ -196,14 +202,12 @@ void measureNode::measure_workpiece(const PointCloudT::Ptr cloud_in)
 
     // Register keyboard callback :
     viewer->registerKeyboardCallback (&keyboardEventOccurred, (void*) &request);
-}
 
-void measureNode::checkResult()
-{
-    bool is_quit = true;
+    bool is_quit = false;
     results.open(file_path + "/results/test.txt", std::ios_base::app);
-    results << coefficients->values[0]<< ", " << coefficients->values[1] << ", " << coefficients->values[2]<<"\n";
+    results << "["<<coefficients->values[0]<< ", " << coefficients->values[1] << ", " << coefficients->values[2]<<"]\n";
     results.close();
+
     while (!is_quit)
     {
         viewer->spinOnce ();
@@ -212,7 +216,8 @@ void measureNode::checkResult()
         if (*request == NEW_SHOT)
         {
             ROS_INFO ("\nnext sample.\n");
-            sendRequest();
+            // sendRequest();
+            moveIt.publish(myMsg);
             is_quit = true;
             // std::string file_name = file_path + "/model/test/"+ std::to_string(capture_counter) +".ply";
             // if( pcl::io::savePLYFileASCII (file_name, *cloud_in) != 0)

@@ -14,7 +14,7 @@ int main(int argc, char **argv)
   ros::Rate loop_rate(measure_node.rate());
   
   ros::Duration(10).sleep();//wait for cam to start
-  measure_node.sendRequest();
+  // measure_node.sendRequest();
 
   while(ros::ok())
   {

@@ -18,7 +18,7 @@ class measureNode
 
         //ros node handle
         ros::NodeHandle nh_;
-        double loop_rate_ = 0.1;
+        double loop_rate_ = 10;
 
         RunMode runMode;
         
@@ -27,6 +27,7 @@ class measureNode
 
         //Publisher. Snapshot request are published through this topic
         ros::Publisher ohSnap; 
+        ros::Publisher moveIt;
 
         // Cue to snap
         std_msgs::Empty myMsg;
@@ -41,8 +42,6 @@ class measureNode
         double radius_search_large = 0.5;
         double angle_threshold = 4;
 
-        PointCloudT::Ptr cloud_in;  // Icped point cloud
-
         pcl::console::TicToc pcl_timer;
 
         boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer;
@@ -52,8 +51,6 @@ class measureNode
         std::string file_path;
         ofstream results;
         int capture_counter;
-
-        pcl::ModelCoefficients::Ptr coefficients;
         
     public:
 
@@ -68,8 +65,6 @@ class measureNode
 		void measure_target_ball(const PointCloudT::Ptr);
 
         void measure_workpiece(const PointCloudT::Ptr);
-
-		void checkResult();
 
 		void sendRequest();
 

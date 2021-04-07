@@ -7,7 +7,8 @@ import rospy
 from std_msgs.msg import Empty
 
 ######################tcp begining
-HOST='192.168.125.5'
+addr = ('192.168.125.1',4044)
+HOST = '192.168.125.5'
 
 PORT=2522
 
@@ -19,18 +20,26 @@ sock.bind((HOST,PORT))
 
 # sock.listen(5)
 
+def callback(data):
+    rospy.loginfo(rospy.get_caller_id() + "sending move_request")
+    sock.sendto('move'.encode(),addr)
+
 ################ros begining
 rospy.init_node('tcptalker',anonymous=0)
 pub=rospy.Publisher('gocator_3200/snapshot_request',Empty,queue_size=1)
+sub=rospy.Subscriber('gocator_3200/move_request',Empty,callback)
 
 print 'i am listening'
 
 while not rospy.is_shutdown():
-    # con,addr=sock.accept()
+    # _ ,addr=sock.accept()
     try:
         # con.settimeout(5)
         buf , _ =sock.recvfrom(BUFFER)
         print buf
+        text_file = open("/home/loganshi/Documents/gocator_pcl/src/pcl_pub/results/test.txt", "a")
+        text_file.write(buf)
+        text_file.close()
         pub.publish()
         # time.sleep(1)
     except socket.timeout:
