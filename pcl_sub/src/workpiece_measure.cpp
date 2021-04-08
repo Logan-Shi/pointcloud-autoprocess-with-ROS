@@ -80,7 +80,7 @@ void calc_boundary(const PointCloudT::Ptr cloud_p, PointCloudT::Ptr cloud_bounda
   }
 }
 
-double calc_plane(const PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_p,double z_min,double z_max,int iterations)
+double calc_plane(const PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_p,double plane_threshold,double z_max,int iterations)
 {
   double percentage = 0;
 
@@ -94,7 +94,7 @@ double calc_plane(const PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_p,doub
   // Mandatory
   seg.setModelType (pcl::SACMODEL_PLANE);
   seg.setMethodType (pcl::SAC_RANSAC);
-  seg.setDistanceThreshold (0.01);
+  seg.setDistanceThreshold (plane_threshold);
   // seg.setRadiusLimits(14, 16);
   seg.setMaxIterations (iterations);
 

@@ -1,11 +1,11 @@
 <launch>
-	<param name="iterations" value="1000"/>
+	<param name="iterations" value="10000"/>
 	<param name="measure_type" value="1"/><!-- 0 for target_ball, 1 for workpiece -->
 	<param name="diameter" value="4"/>
 	<param name="buffer" value="2"/>
-	<param name="z_min" value="-500"/>
-	<param name="z_max" value="500"/>
-	<param name="threshold" value="0.03"/>
+	<param name="plane_threshold" value="0.04"/>
+	<param name="crop_size" value="50"/>
+	<param name="threshold" value="0.04"/>
 	<param name="radius_search_small" value="0.5"/>
 	<param name="radius_search_large" value="0.5"/>
 	<param name="angle_threshold" value="1.5"/>
@@ -13,6 +13,8 @@
 	<node pkg="measure_node" type="measure_node" name="measure_node" output="screen"/>
 
     <include file="$(find gocator_3200)/launch/gocator_3200.launch"/> 
+
+    <node pkg="gocator_publisher" type="server.py" name="server" output="screen"/>
 
 <!--     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find gocator_publisher)/param/rviz/default.rviz" /> -->
 </launch>

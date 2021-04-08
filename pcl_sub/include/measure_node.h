@@ -32,11 +32,11 @@ class measureNode
         // Cue to snap
         std_msgs::Empty myMsg;
 
-		int iterations = 1;
+		int iterations = 10;
         double diameter = 4;
         double buffer = 0.5;
-        double z_min = -500;
-        double z_max = 500;
+        double plane_threshold = 0.05;
+        double crop_size = 50;
         double threshold = 0.01;
         double radius_search_small = 0.5;
         double radius_search_large = 0.5;

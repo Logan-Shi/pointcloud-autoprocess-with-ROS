@@ -31,8 +31,8 @@ viewer(new pcl::visualization::PCLVisualizer("Ransac demo"))
     nh_.getParam("measure_type",measure_type); runMode = (RunMode)measure_type;
     nh_.getParam("diameter",diameter);
     nh_.getParam("buffer",buffer);
-    nh_.getParam("z_min",z_min);
-    nh_.getParam("z_max",z_max);
+    nh_.getParam("plane_threshold",plane_threshold);
+    nh_.getParam("crop_size",crop_size);
     nh_.getParam("threshold",threshold);
     nh_.getParam("radius_search_small",radius_search_small);
     nh_.getParam("radius_search_large",radius_search_large);
@@ -147,7 +147,7 @@ void measureNode::measure_target_ball(const PointCloudT::Ptr cloud_in)
 void measureNode::measure_workpiece(const PointCloudT::Ptr cloud_in)
 {
     PointCloudT::Ptr cloud_p (new PointCloudT);
-    calc_plane(cloud_in, cloud_p, z_min, z_max,iterations);
+    calc_plane(cloud_in, cloud_p, plane_threshold, crop_size,iterations);
   
     PointCloudT::Ptr cloud_boundary (new PointCloudT);
     calc_boundary(cloud_p, cloud_boundary, radius_search_small,radius_search_large,angle_threshold);
@@ -187,7 +187,7 @@ void measureNode::measure_workpiece(const PointCloudT::Ptr cloud_in)
     cylinder_coeff.values[6] = coefficients->values[3];
    
     viewer->addCylinder (cylinder_coeff);
-    // viewer->addCoordinateSystem(10,coefficients->values[0],coefficients->values[1],coefficients->values[2]);
+    viewer->addCoordinateSystem(10,coefficients->values[0],coefficients->values[1],coefficients->values[2]);
   
     // Adding text descriptions in each viewport
     viewer->addText ("White: Original point cloud\nRed: Ransac Plane result\nGreen: Boundary result", 10, 10, 16, txt_gray_lvl, txt_gray_lvl, txt_gray_lvl, "ransac_info");
@@ -201,12 +201,21 @@ void measureNode::measure_workpiece(const PointCloudT::Ptr cloud_in)
     viewer->setSize (1280, 1024);  // Visualiser window size
 
     // Register keyboard callback :
-    viewer->registerKeyboardCallback (&keyboardEventOccurred, (void*) &request);
+    // viewer->registerKeyboardCallback (&keyboardEventOccurred, (void*) &request);
 
-    bool is_quit = false;
+    bool is_quit = true;
     results.open(file_path + "/results/test.txt", std::ios_base::app);
     results << "["<<coefficients->values[0]<< ", " << coefficients->values[1] << ", " << coefficients->values[2]<<"]\n";
     results.close();
+    // std::string file_name = file_path + "/model/test/"+ std::to_string(capture_counter) +".ply";
+    // if( pcl::io::savePLYFileASCII (file_name, *cloud_in) != 0)
+    // {
+    //     std::cout<<"failed to  save "<<file_name<<"\n";
+    // }else{
+    //     std::cout<<file_name<<" saved successfully!\n";
+    //     capture_counter++;
+    // }
+    moveIt.publish(myMsg);
 
     while (!is_quit)
     {
@@ -216,7 +225,7 @@ void measureNode::measure_workpiece(const PointCloudT::Ptr cloud_in)
         if (*request == NEW_SHOT)
         {
             ROS_INFO ("\nnext sample.\n");
-            // sendRequest();
+            sendRequest();
             moveIt.publish(myMsg);
             is_quit = true;
             // std::string file_name = file_path + "/model/test/"+ std::to_string(capture_counter) +".ply";
