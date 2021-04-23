@@ -1,6 +1,6 @@
 # Introduction
 
-packages for large-scale metrology project. 
+ROS packages for large-scale metrology project, which extracts circle and sphere feature online with gocator_3210 and ABB robot. 
 
 # Dependency
 
@@ -9,7 +9,7 @@ To install GoSDK dependency, the following steps are required:
 1. With a Serial Number of a device, register as a customer at the [LMI website](http://downloads.lmi3d.com/)
 2. Download the SDK from the [LMI website](http://downloads.lmi3d.com/) (file 14400-4.2.5.17_SOFTWARE_GO_SDK.zip)
 3. Uncompress GoSDK
-4. To switch Build Type between "Debug" and "Release", you need to adjust three files in total.[ziqi Chai's method]https://github.com/ZiqiChai/gocator_3x00)
+4. To switch Build Type between "Debug" and "Release", you need to adjust three files in total. [modified_GO_SDK](https://github.com/Logan-Shi/GO_SDK)
 
 ```
 /GO_SDK/Platform/kApi/kApi-Linux_X64.mk
