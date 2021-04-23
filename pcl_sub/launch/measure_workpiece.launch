@@ -1,9 +1,11 @@
 <launch>
-	<param name="iterations" value="10000"/>
+	<param name="iterations" value="1000"/>
 	<param name="measure_type" value="1"/><!-- 0 for target_ball, 1 for workpiece -->
-	<param name="diameter" value="4"/>
+	<param name="is_save" value="1"/>
+	<param name="diameter_1" value="15"/>
+	<param name="diameter_2" value="20"/>
 	<param name="buffer" value="2"/>
-	<param name="plane_threshold" value="0.04"/>
+	<param name="plane_threshold" value="0.1"/>
 	<param name="crop_size" value="50"/>
 	<param name="threshold" value="0.04"/>
 	<param name="radius_search_small" value="0.5"/>

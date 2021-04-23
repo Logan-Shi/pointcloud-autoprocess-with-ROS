@@ -33,7 +33,9 @@ class measureNode
         std_msgs::Empty myMsg;
 
 		int iterations = 10;
-        double diameter = 4;
+        int is_save = 0;
+        double diameter_1 = 4;
+        double diameter_2 = 4;
         double buffer = 0.5;
         double plane_threshold = 0.05;
         double crop_size = 50;

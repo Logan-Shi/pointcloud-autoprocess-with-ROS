@@ -17,7 +17,6 @@ request(new KeyMode(NEW_SHOT)),
 viewer(new pcl::visualization::PCLVisualizer("Ransac demo"))
 {
     capture_counter = 1;
-    iterations = 1;
     
     // Create a ROS subscriber for the input point cloud
     sub = nh_.subscribe<sensor_msgs::PointCloud2> ("gocator_3200/pcl_output", 1, 
@@ -29,7 +28,9 @@ viewer(new pcl::visualization::PCLVisualizer("Ransac demo"))
     int measure_type;
     nh_.getParam("iterations",iterations);
     nh_.getParam("measure_type",measure_type); runMode = (RunMode)measure_type;
-    nh_.getParam("diameter",diameter);
+    nh_.getParam("is_save",is_save);
+    nh_.getParam("diameter_1",diameter_1);
+    nh_.getParam("diameter_2",diameter_2);
     nh_.getParam("buffer",buffer);
     nh_.getParam("plane_threshold",plane_threshold);
     nh_.getParam("crop_size",crop_size);
@@ -148,18 +149,19 @@ void measureNode::measure_workpiece(const PointCloudT::Ptr cloud_in)
 {
     PointCloudT::Ptr cloud_p (new PointCloudT);
     calc_plane(cloud_in, cloud_p, plane_threshold, crop_size,iterations);
-  
+    
+    PointCloudNT::Ptr normals(new PointCloudNT); 
     PointCloudT::Ptr cloud_boundary (new PointCloudT);
-    calc_boundary(cloud_p, cloud_boundary, radius_search_small,radius_search_large,angle_threshold);
+    calc_boundary(cloud_p, cloud_boundary, normals, radius_search_small,radius_search_large,angle_threshold);
   
     double percentage = 0;
     pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients);
-    percentage = calc_circle(cloud_boundary, coefficients, percentage, 4, buffer, threshold,iterations);
+    percentage = calc_circle(cloud_boundary, coefficients, percentage, diameter_1, buffer, threshold,iterations);
     std::cout<<"percentage: "<<percentage<<"\n";
-    percentage = calc_circle(cloud_boundary, coefficients, percentage, 9, buffer, threshold,iterations);
+    percentage = calc_circle(cloud_boundary, coefficients, percentage, diameter_2, buffer, threshold,iterations);
     std::cout<<"percentage: "<<percentage<<"\n";
-    percentage = calc_circle(cloud_boundary, coefficients, percentage, 26, buffer, threshold,iterations);
-    std::cout<<"percentage: "<<percentage<<"\n";
+    // percentage = calc_circle(cloud_boundary, coefficients, percentage, 26, buffer, threshold,iterations);
+    // std::cout<<"percentage: "<<percentage<<"\n";
 
     float txt_gray_lvl = 1.0;
   
@@ -207,14 +209,19 @@ void measureNode::measure_workpiece(const PointCloudT::Ptr cloud_in)
     results.open(file_path + "/results/test.txt", std::ios_base::app);
     results << "["<<coefficients->values[0]<< ", " << coefficients->values[1] << ", " << coefficients->values[2]<<"]\n";
     results.close();
-    // std::string file_name = file_path + "/model/test/"+ std::to_string(capture_counter) +".ply";
-    // if( pcl::io::savePLYFileASCII (file_name, *cloud_in) != 0)
-    // {
-    //     std::cout<<"failed to  save "<<file_name<<"\n";
-    // }else{
-    //     std::cout<<file_name<<" saved successfully!\n";
-    //     capture_counter++;
-    // }
+
+    if (is_save && capture_counter < 10)
+    {
+        std::string file_name = file_path + "/model/test/"+ std::to_string(capture_counter) +".ply";
+        if( pcl::io::savePLYFileASCII (file_name, *cloud_in) != 0)
+        {
+            std::cout<<"failed to  save "<<file_name<<"\n";
+        }else{
+            std::cout<<file_name<<" saved successfully!\n";
+            capture_counter++;
+        }
+    }
+    
     moveIt.publish(myMsg);
 
     while (!is_quit)

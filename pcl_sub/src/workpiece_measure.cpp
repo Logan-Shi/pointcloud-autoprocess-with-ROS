@@ -49,13 +49,13 @@ double calc_circle(const PointCloudT::Ptr cloud_boundary, pcl::ModelCoefficients
   return percentage;
 }
 
-void calc_boundary(const PointCloudT::Ptr cloud_p, PointCloudT::Ptr cloud_boundary, double radius_search_small, double radius_search_large, double angle_threshold)
+void calc_boundary(const PointCloudT::Ptr cloud_p, PointCloudT::Ptr cloud_boundary, PointCloudNT::Ptr normals, double radius_search_small, double radius_search_large, double angle_threshold)
 {
   // Boundary
   pcl::PointCloud<pcl::Boundary> boundaries; 
   pcl::BoundaryEstimation<PointT, PointNT, pcl::Boundary> boundEst; 
   pcl::NormalEstimation<PointT, PointNT> normEst; 
-  PointCloudNT::Ptr normals(new PointCloudNT); 
+  // PointCloudNT::Ptr normals(new PointCloudNT); 
   normEst.setInputCloud(cloud_p); 
   normEst.setRadiusSearch(radius_search_small); 
   // pcl_timer.tic();
@@ -80,12 +80,12 @@ void calc_boundary(const PointCloudT::Ptr cloud_p, PointCloudT::Ptr cloud_bounda
   }
 }
 
-double calc_plane(const PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_p,double plane_threshold,double z_max,int iterations)
+double calc_plane(const PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_p,double plane_threshold,double crop_size,int iterations)
 {
   double percentage = 0;
 
   PointCloudT::Ptr cloud_filtered (new PointCloudT);
-  cloud_filtered = crop_box(cloud_in,z_max);
+  cloud_filtered = crop_box(cloud_in,crop_size);
 
   // Create the segmentation object
   pcl::SACSegmentation<PointT> seg;
@@ -105,6 +105,7 @@ double calc_plane(const PointCloudT::Ptr cloud_in, PointCloudT::Ptr cloud_p,doub
   
   // pcl_timer.tic ();
   seg.segment (*inliers, *coefficients);
+  // normals = (*coefficients);
   if (inliers->indices.size() == 0 )
   {
     return percentage;
