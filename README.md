@@ -28,11 +28,19 @@ packages for large-scale metrology project.
 
 [-] added online workpiece measure: ```roslaunch measure_node measure_workpiece```
 
-[ ] custom circle radius
+[ ] test cube hole
+
+[ ] add sim mode
+
+[ ] automatically batch the data
+
+[ ] integrate MATLAB code
+
+[-] custom circle radius
 
 [ ] filter redundant plane
 
-[ ] read in custom params for workpiece measure
+[-] read in custom params for workpiece measure
 
 [-] test icp with 1/2.ply on sim
 
@@ -44,7 +52,7 @@ packages for large-scale metrology project.
 
 [-] send snap request with keyboard
 
-[ ] QT user interface
+[ ] merge pointcloud with transform
 
 [ ] publish transform
 
