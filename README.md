@@ -48,13 +48,13 @@ $ make -f GoSdk-Gnu.mk
 
 [-] added online workpiece measure: ```roslaunch measure_node measure_workpiece```
 
-[ ] test cube hole
+[-] test cube hole
 
 [ ] add sim mode
 
 [ ] automatically batch the data
 
-[ ] integrate MATLAB code
+[-] integrate MATLAB code
 
 [-] custom circle radius
 

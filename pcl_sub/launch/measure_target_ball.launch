@@ -1,5 +1,7 @@
 <launch>
 	<param name="iterations" value="1000"/>
+	<param name="batch_size" value="64"/>
+	<param name="is_save" value="0"/>
 	<param name="measure_type" value="0"/><!-- 0 for target_ball, 1 for workpiece -->
 	<param name="diameter" value="4"/>
 	<param name="buffer" value="2"/>

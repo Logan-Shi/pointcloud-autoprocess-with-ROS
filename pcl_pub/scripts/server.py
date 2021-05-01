@@ -31,17 +31,20 @@ pub=rospy.Publisher('gocator_3200/snapshot_request',Empty,queue_size=1)
 sub=rospy.Subscriber('gocator_3200/move_request',Empty,callback)
 
 print 'i am listening'
-
+counter = 0
 while not rospy.is_shutdown():
     # _ ,addr=sock.accept()
     try:
         # con.settimeout(5)
         buf , _ =sock.recvfrom(BUFFER)
         print buf
+        counter = counter+1
         text_file = open("/home/loganshi/Documents/gocator_pcl/src/pcl_pub/results/test.txt", "a")
-        text_file.write(buf)
+        text_file.write(buf+'\n')
         text_file.close()
-        pub.publish()
+        # pub.publish()
+        if counter % 2:
+            pub.publish()
 
         # s1 = buf[0]
         # s2 = buf[1]

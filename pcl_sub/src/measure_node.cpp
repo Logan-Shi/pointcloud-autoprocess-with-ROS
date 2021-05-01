@@ -16,7 +16,7 @@ measureNode::measureNode():
 request(new KeyMode(NEW_SHOT)),
 viewer(new pcl::visualization::PCLVisualizer("Ransac demo"))
 {
-    capture_counter = 1;
+    capture_counter = 0;
     
     // Create a ROS subscriber for the input point cloud
     sub = nh_.subscribe<sensor_msgs::PointCloud2> ("gocator_3200/pcl_output", 1, 
@@ -27,6 +27,7 @@ viewer(new pcl::visualization::PCLVisualizer("Ransac demo"))
 
     int measure_type;
     nh_.getParam("iterations",iterations);
+    nh_.getParam("batch_size",batch_size);
     nh_.getParam("measure_type",measure_type); runMode = (RunMode)measure_type;
     nh_.getParam("is_save",is_save);
     nh_.getParam("diameter_1",diameter_1);
@@ -139,9 +140,20 @@ void measureNode::measure_target_ball(const PointCloudT::Ptr cloud_in)
     // Register keyboard callback :
     // viewer->registerKeyboardCallback (&keyboardEventOccurred, (void*) &request);
 
+    int batch = capture_counter/batch_size;
+    // results.open(file_path + "/results/test/" + std::to_string(batch) + ".txt", std::ios_base::app);
     results.open(file_path + "/results/test.txt", std::ios_base::app);
     results << "["<<coefficients->values[0]<< ", " << coefficients->values[1] << ", " << coefficients->values[2]<<"]\n";
     results.close();
+
+    std::string file_name = file_path + "/results/"+ std::to_string(capture_counter+1) +".ply";
+    if( pcl::io::savePLYFileASCII (file_name, *cloud_in) != 0)
+    {
+        std::cout<<"failed to  save "<<file_name<<"\n";
+    }else{
+        std::cout<<file_name<<" saved successfully!\n";
+    }
+    capture_counter++;
     moveIt.publish(myMsg);
 }
 
@@ -160,8 +172,8 @@ void measureNode::measure_workpiece(const PointCloudT::Ptr cloud_in)
     std::cout<<"percentage: "<<percentage<<"\n";
     percentage = calc_circle(cloud_boundary, coefficients, percentage, diameter_2, buffer, threshold,iterations);
     std::cout<<"percentage: "<<percentage<<"\n";
-    // percentage = calc_circle(cloud_boundary, coefficients, percentage, 26, buffer, threshold,iterations);
-    // std::cout<<"percentage: "<<percentage<<"\n";
+    percentage = calc_circle(cloud_boundary, coefficients, percentage, 26, buffer, threshold,iterations);
+    std::cout<<"percentage: "<<percentage<<"\n";
 
     float txt_gray_lvl = 1.0;
   
@@ -206,21 +218,22 @@ void measureNode::measure_workpiece(const PointCloudT::Ptr cloud_in)
     // viewer->registerKeyboardCallback (&keyboardEventOccurred, (void*) &request);
 
     bool is_quit = true;
+    int batch = capture_counter/batch_size;
     results.open(file_path + "/results/test.txt", std::ios_base::app);
     results << "["<<coefficients->values[0]<< ", " << coefficients->values[1] << ", " << coefficients->values[2]<<"]\n";
     results.close();
 
-    if (is_save && capture_counter < 10)
+    if (is_save && batch < 1)
     {
-        std::string file_name = file_path + "/model/test/"+ std::to_string(capture_counter) +".ply";
+        std::string file_name = file_path + "/results/"+ std::to_string(capture_counter+1) +".ply";
         if( pcl::io::savePLYFileASCII (file_name, *cloud_in) != 0)
         {
             std::cout<<"failed to  save "<<file_name<<"\n";
         }else{
             std::cout<<file_name<<" saved successfully!\n";
-            capture_counter++;
         }
     }
+    capture_counter++;
     
     moveIt.publish(myMsg);
 

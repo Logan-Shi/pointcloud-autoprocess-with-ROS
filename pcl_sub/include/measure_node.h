@@ -33,6 +33,7 @@ class measureNode
         std_msgs::Empty myMsg;
 
 		int iterations = 10;
+        int batch_size = 8;
         int is_save = 0;
         double diameter_1 = 4;
         double diameter_2 = 4;
