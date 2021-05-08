@@ -22,58 +22,22 @@ $ cd GO_SDK/Gocator
 $ make -f GoSdk-Gnu.mk 
 ```
 
-# TODO list
+# Supported function
 
-[-] publisher
+1. gocator 3210 point cloud capture: ```roslaunch gocator_3200 gocator_saver.launch``` (space for new shot, "s" to save)
 
-[-] subscriber
+2. can generate ideal target ball ply file: ```roslaunch target_generator target_generator.launch```
 
-[-] data from gocator 3210
+3. added online target ball measure with customizable params: ```roslaunch measure_node measure_target_ball```
 
-[-] inf data from gocator 3210 : used conditional removal
+4. added online workpiece measure with customizable params: ```roslaunch measure_node measure_workpiece```
 
-[-] gocator 3210 saver: ```roslaunch gocator_3200 gocator_saver.launch``` (space for new shot, "s" to save)
+5. can visualize saved ply using rviz: ```roslaunch gocator_publisher gocator_publisher.launch```
 
-[-] offline-sim done 
+# Kinematic calibration
 
-[-] added target_generator: ```roslaunch target_generator target_generator.launch```
+point clouds captured using this repo can be stitched with ABB forward kinematics, which is implemented with MATLAB in [repo](https://github.com/Ssz990220/Kinematic_Param_Calibration)
 
-[-] output format
+# Measure results
 
-[-] saver capture after save off
-
-[-] custom target_ball batch
-
-[-] added online target ball measure: ```roslaunch measure_node measure_target_ball```
-
-[-] added online workpiece measure: ```roslaunch measure_node measure_workpiece```
-
-[-] test cube hole
-
-[ ] add sim mode
-
-[ ] automatically batch the data
-
-[-] integrate MATLAB code
-
-[-] custom circle radius
-
-[ ] filter redundant plane
-
-[-] read in custom params for workpiece measure
-
-[-] test icp with 1/2.ply on sim
-
-[-] visualize saved ply: ```roslaunch gocator_publisher gocator_publisher.launch```
-
-[-] update pcl and vtk
-
-[-] serial points measuring support
-
-[-] send snap request with keyboard
-
-[ ] merge pointcloud with transform
-
-[ ] publish transform
-
-[-] ros param setting from roslaunch 
+system achieved 0.1mm accuracy under the range of 640mm at the moment. 
