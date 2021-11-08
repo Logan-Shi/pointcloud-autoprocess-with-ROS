@@ -10,6 +10,15 @@ To install GoSDK dependency, download the following repo:
 
 and set up gocater_interface with instructions under [README](https://github.com/Logan-Shi/gocator_interface/blob/master/README.md)
 
+# Install
+
+after dependency is set up, installation can begin.
+
+0. ```mkdir -p workspace/src && cd workspace/src```
+1. ```git clone git@github.com:Logan-Shi/large-scale-variable-poses-online-measuring-system.git```
+2. ```cd .. && catkin_make```
+3. ```source devel/setup.bash```
+
 # Current Supported function
 
 1. gocator 3210 point cloud capture: ```roslaunch gocator_3200 gocator_saver.launch``` (space for new shot, "s" to save)
