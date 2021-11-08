@@ -6,20 +6,11 @@ ROS packages for large-scale metrology project, which extracts circle and sphere
 
 To install GoSDK dependency, download the following repo: 
 
-[modified_GO_SDK](https://github.com/Logan-Shi/GO_SDK)
+[gocator_interface](https://github.com/Logan-Shi/gocator_interface)
 
-1. first build the sdk: 
+and set up gocater_interface with instructions under [README](https://github.com/Logan-Shi/gocator_interface/blob/master/README.md)
 
-```
-run ./install.bash
-```
-2. then set the dir manually at /gocator_3200/CmakeLists.txt:
-
-```
-SET(GO_SDK_4 <dir>)
-```
-
-# Supported function
+# Current Supported function
 
 1. gocator 3210 point cloud capture: ```roslaunch gocator_3200 gocator_saver.launch``` (space for new shot, "s" to save)
 
@@ -30,10 +21,6 @@ SET(GO_SDK_4 <dir>)
 4. added online workpiece measure with customizable params: ```roslaunch measure_node measure_workpiece```
 
 5. can visualize saved ply using rviz: ```roslaunch gocator_publisher gocator_publisher.launch```
-
-# Kinematic calibration
-
-point clouds captured using this repo can be stitched with ABB forward kinematics, which is implemented with MATLAB in [repo](https://github.com/Ssz990220/Kinematic_Param_Calibration)
 
 # Measure results
 
