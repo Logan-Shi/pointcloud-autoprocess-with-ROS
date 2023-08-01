@@ -34,3 +34,5 @@ after dependency is set up, installation can begin.
 # Measure results
 
 system achieved 0.1mm accuracy under the range of 640mm at the moment. 
+
+![gif](measure.gif)
